@@ -1,0 +1,19 @@
+---
+# Bolt inventory file
+# https://puppet.com/docs/bolt/1.x/inventory_file.html
+
+groups:
+  - name: vagrant
+    config:
+      transport: ssh
+      ssh:
+        user: vagrant
+        host-key-check: false
+        run-as: root
+        tty: true
+        tmpdir: /home/vagrant
+    nodes:
+    - puppet
+    - agent-el7
+    - agent-el6
+

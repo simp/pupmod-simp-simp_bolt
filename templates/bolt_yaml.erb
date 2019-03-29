@@ -1,0 +1,82 @@
+<%
+  bolt_yaml = []
+
+  bolt_yaml << "# This file managed by puppet."
+  bolt_yaml << "# Any changes that you make will be reverted on the next puppet run."
+  bolt_yaml << "#"
+  bolt_yaml << "# Bolt configuration file"
+  bolt_yaml << "# https://puppet.com/docs/bolt/1.x/bolt_configuration_options.html"
+  bolt_yaml << "---"
+  bolt_yaml << "module: #{@modulepath}"
+
+  if defined?(@color)
+    bolt_yaml << "color: #{@color}"
+  end
+
+  if @concurrency       
+    bolt_yaml << "concurrency: #{@concurrency}"
+  end
+
+  if @format
+    bolt_yaml << "format: #{@bolt_yaml}"
+  end
+
+  if @hiera_config
+    bolt_yaml << "hiera-config: #{@hiera_config}"
+  end
+
+  if @inventoryfile
+    bolt_yaml << "inventoryfile: #{@inventoryfile}"
+  end
+
+  if @transport
+    bolt_yaml << "transport: #{@transport}"
+  end
+
+  bolt_yaml << "ssh:"
+
+  if  defined?(@ssh_host_key_check)
+    bolt_yaml << "  host-key-check: #{@ssh_host_key_check}"
+  end
+
+  if @ssh_password
+    bolt_yaml << "  password: #{@ssh_password}"
+  end
+
+  if @ssh_port
+    bolt_yaml << "  port: #{@ssh_port}"
+  end
+
+  if @ssh_private_key
+    bolt_yaml << "  private-key: #{@ssh_private_key}"
+  end
+
+  if @ssh_proxyjump
+    bolt_yaml << "  proxyjump: #{@ssh_proxyjump}"
+  end
+
+  bolt_yaml << "  tmpdir: #{@ssh_tmpdir}"
+  bolt_yaml << "  ssh-user: #{@ssh_user}"
+
+  if @ssh_run_as
+    bolt_yaml << "  run-as: #{@ssh_run_as}"
+  end
+
+  bolt_yaml << "log:"
+  bolt_yaml << "  console:"
+  bolt_yaml << "    level: #{@log_console_level}"
+
+  if @log_file
+    bolt_yaml << "  #{@log_file}:"
+    if @log_file_level
+      bolt_yaml << "    level: #{@log_file_level}"
+    end
+
+    if  defined?(@log_file_append)
+      bolt_yaml << "    append: #{@log_file_level}"
+    end
+  end
+
+
+-%>
+<%= bolt_yaml.join("\n") %>
