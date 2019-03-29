@@ -65,18 +65,15 @@
   bolt_yaml << "log:"
   bolt_yaml << "  console:"
   bolt_yaml << "    level: #{@log_console_level}"
+  bolt_yaml << "  #{@log_file}:"
 
-  if @log_file
-    bolt_yaml << "  #{@log_file}:"
-    if @log_file_level
-      bolt_yaml << "    level: #{@log_file_level}"
-    end
-
-    if  defined?(@log_file_append)
-      bolt_yaml << "    append: #{@log_file_level}"
-    end
+  if @log_file_level
+    bolt_yaml << "    level: #{@log_file_level}"
   end
 
+  if  defined?(@log_file_append)
+    bolt_yaml << "    append: #{@log_file_level}"
+  end
 
 -%>
 <%= bolt_yaml.join("\n") %>

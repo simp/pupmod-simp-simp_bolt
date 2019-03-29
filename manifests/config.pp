@@ -93,13 +93,14 @@ class simp_bolt::config (
   String                                                     $ssh_user           = 'root',
   Optional[String]                                           $ssh_run_as         = undef,
   Enum['debug', 'info', 'notice', 'warn', 'error']           $log_console_level  = 'info',
-  Optional[String]                                           $log_file           = undef,
+  String                                                     $log_file           = '/var/log/puppetlabs/bolt/bolt.log',
   Optional[Enum['debug', 'info', 'notice', 'warn', 'error']] $log_file_level     = undef,
   Optional[Boolean]                                          $log_file_append    = undef
   Boolean                                                    $disable_analytics  = true,
 ){
   assert_private()
 
+# Create the Boltdir
   file { '/etc/puppetlabs/bolt':
     ensure => 'directory',
     owner  => 'root',
@@ -107,6 +108,7 @@ class simp_bolt::config (
     mode   => '0750'
   }
 
+# Create the config file for bolt
   file { '/etc/puppetlabs/bolt/bolt.yaml':
     ensure  => 'file',
     owner   => 'root',
@@ -115,14 +117,14 @@ class simp_bolt::config (
     content => template("${module_name}/bolt_yaml.erb")
   }
 
-  if $log_file {
-    $log_dir = dirname($log_file)
-    exec { "mkdir -p ${log_dir}":
-      path => ['/bin','/usr/bin'],
-      onlyif => "test ! -d $log_dir"
-    }
+# Ensure the directory for the log file exists
+  $log_dir = dirname($log_file)
+  exec { "mkdir -p ${log_dir}":
+    path => ['/bin','/usr/bin'],
+    onlyif => "test ! -d $log_dir"
   }
 
+# Create the config file for analytics
   file { '/etc/puppetlabs/bolt/analytics.yaml':
     ensure  => present,
     owner   => 'root',
@@ -130,6 +132,7 @@ class simp_bolt::config (
     mode    => '0750'
   } 
 
+# Ensure analytics are correctly enabled or disabled
   if $disable_analytics {
     file_line { 'analytics_yaml':
       ensure => present,
