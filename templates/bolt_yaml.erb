@@ -7,7 +7,10 @@
   bolt_yaml << "# Bolt configuration file"
   bolt_yaml << "# https://puppet.com/docs/bolt/1.x/bolt_configuration_options.html"
   bolt_yaml << "---"
-  bolt_yaml << "module: #{@modulepath}"
+
+  if defined?(@modulepath)
+    bolt_yaml << "module: #{@modulepath}"
+  end
 
   if defined?(@color)
     bolt_yaml << "color: #{@color}"

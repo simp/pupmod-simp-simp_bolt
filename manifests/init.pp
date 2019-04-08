@@ -15,33 +15,30 @@
 #   default, and must be explicitly opted into by administrators.  Please
 #   review the +trusted_nets+ and +$enable_*+ parameters for details.
 #
+# @param bolt_server
+#   If true, will install and configure the Puppet Bolt package
+#
 # @param package_name
-#   The name of the simp_bolt package
-#
-# @param trusted_nets
-#   A whitelist of subnets (in CIDR notation) permitted access
-#
-# @param enable_auditing
-#   If true, manage auditing for simp_bolt
-#
-# @param enable_firewall
-#   If true, manage firewall rules to acommodate simp_bolt
-#
-# @param enable_logging
-#   If true, manage logging configuration for simp_bolt
+#   The name of the Puppet Bolt rpm package
 #
 # @author SIMP Team
 #
 class simp_bolt (
-  String                        $package_name       = 'puppet-bolt',
+  Boolean  $bolt_server  = false,
+  String   $package_name = 'puppet-bolt'
 ) {
 
   simplib::assert_metadata($module_name)
 
-  include '::simp_bolt::install'
-  include '::simp_bolt::config'
+  include '::simp_bolt::user'
 
-  Class[ '::simp_bolt::install' ]
-  -> Class[ '::simp_bolt::config' ]
+  if $bolt_server {
+    include '::simp_bolt::install'
+    include '::simp_bolt::config'
+
+    Class[ '::simp_bolt::user' ]
+    -> Class[ '::simp_bolt::install' ]
+      -> Class[ '::simp_bolt::config' ]
+  }
 
 }
