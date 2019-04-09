@@ -21,8 +21,8 @@
 # @param package_name
 #   The name of the Puppet Bolt rpm package
 #
-# @author SIMP Team
-#
+# @author SIMP Team <https://simp-project.com/>
+# 
 class simp_bolt (
   Boolean  $bolt_server  = false,
   String   $package_name = 'puppet-bolt'

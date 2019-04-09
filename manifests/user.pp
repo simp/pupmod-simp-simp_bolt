@@ -46,6 +46,7 @@
 # @param max_logins
 #   The ``pam_limits`` restricting the number of concurrent sessions permitted for
 #   ``username``
+#
 class simp_bolt::user (
   Boolean             $enable                  = true,
   String              $username                = 'simp_bolt',

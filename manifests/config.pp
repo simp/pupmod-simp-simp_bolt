@@ -50,7 +50,7 @@
 #   Whether to perform host key validation when connecting over SSH.  By default this is true.
 #
 # @param ssh_password
-#   Login password for the remote system.
+#   Login password for the remote system. Saving the password in plaintext is not recommended.
 #
 # @param ssh_port
 #   Connection port.  By default this is 22.

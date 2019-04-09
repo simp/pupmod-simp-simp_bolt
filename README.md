@@ -11,7 +11,6 @@
 1. [Description](#description)
 2. [Setup - The basics of getting started with simp_bolt](#setup)
     * [What simp_bolt affects](#what-simp_bolt-affects)
-    * [Setup requirements](#setup-requirements)
     * [Beginning with simp_bolt](#beginning-with-simp_bolt)
 3. [Usage - Configuration options and additional functionality](#usage)
 4. [Reference - An under-the-hood peek at what the module is doing and how](#reference)
@@ -30,28 +29,24 @@
 
 ## Description
 
-**FIXME:** Ensure the *Description* section is correct and complete, then remove this message!
+This module manages Puppet Bolt. It installs and configures the necessary 
+packages on systems specified as Bolt servers and ensures accounts are created
+on both servers and target systems to be managed with Bolt.
 
-Start with a one- or two-sentence summary of what the module does and/or what
-problem it solves. This is your 30-second elevator pitch for your module.
-Consider including OS and Puppet version compatability, and any other
-information users will need to quickly assess the module's viability within
-their environment.
-
-You can give more descriptive information in a second paragraph. This paragraph
-should answer the questions: "What does this module *do*?" and "Why would I use
-it?" If your module has a range of functionality (installation, configuration,
-management, etc.), this is the time to mention it.
+Bolt is task runner that permits automation on an as-needed basis. This means
+that all actions are initiated from the Bolt server, eliminating reliance upon
+remote agent software for task execution. More complex tasks can be implemented
+using Puppet modules, which does require the installation of an agent for
+executions, but all tasks are still initiated from the remote Bolt system.
 
 ### This is a SIMP module
 
-This module is a component of the [System Integrity Management Platform](https://simp-project.com), a
+This module is a component of the 
+[System Integrity Management Platform](https://simp-project.com), a
 compliance-management framework built on Puppet.
 
 If you find any issues, they may be submitted to our [bug
 tracker](https://simp-project.atlassian.net/).
-
-**FIXME:** Ensure the *This is a SIMP module* section is correct and complete, then remove this message!
 
 This module is optimally designed for use within a larger SIMP ecosystem, but
 it can be used independently:
@@ -68,57 +63,82 @@ it can be used independently:
 
 ### What simp_bolt affects
 
-**FIXME:** Ensure the *What simp_bolt affects* section is correct and complete, then remove this message!
+The simp_bolt module creates a local user account on systems, simp_bolt by 
+default, that has the ability to ``su`` to the root user on the system. Every
+effort has been taken to implement this as securely as possible. By
+default, the user is only permitted to login via ssh from specified hosts, with
+the exception of Bolt server which also permits local login to launch tasks. 
+The local user is limited to one login session for the execution of tasks, to 
+facilitate attestation.
 
-If it's obvious what your module touches, you can skip this section. For
-example, folks can probably figure out that your mysql_instance module affects
-their MySQL instances.
+The user's home directory defaults to /var/local/simp_bolt. This location is
+used to store configuration files on the Bolt server and temporary files on the
+target systems. This can be configured to a different location if necessary.
 
-If there's more that they should know about, though, this is the place to
-mention:
+Bolt logs are written to the /var/log/puppetlabs/bolt by default, and the 
+directory structure will be created if necessary.
 
- * A list of files, packages, services, or operations that the module will
-   alter, impact, or execute.
- * Dependencies that your module automatically installs.
- * Warnings or other important notices.
+By default, Bolt collects various analytics associated with a random UUID,
+details are available at
+[Analytics data collection](https://puppet.com/docs/bolt/latest/bolt_installing.html#concept-8242)
+. The simp_bolt module overrides and disables this be default but it can be 
+re-enabled in Hiera.
 
-### Setup Requirements **OPTIONAL**
-
-**FIXME:** Ensure the *Setup Requirements* section is correct and complete, then remove this message!
-
-If your module requires anything extra before setting up (pluginsync enabled,
-etc.), mention it here.
-
-If your most recent release breaks compatibility or requires particular steps
-for upgrading, you might want to include an additional "Upgrading" section
-here.
+The simp_bolt module relies upon the simp/pam and simp/sudo modules for
+implementation and will install them if necessary.
 
 ### Beginning with simp_bolt
 
-**FIXME:** Ensure the *Beginning with simp_bolt* section is correct and complete, then remove this message!
+To configure a system as a Puppet Bolt server, include the SIMP Bolt class and 
+specify Bolt server in Hiera.
+```yaml
+classes:
+  - simp_bolt
+simp_bolt::bolt_server: true
+```
 
-The very basic steps needed for a user to get the module up and running. This
-can include setup steps, if necessary, or it can be an example of the most
-basic use of the module.
+To configure a system that be managed by Puppet Bolt, simply include the SIMP
+Bolt class in Hiera.
+```yaml
+classes:
+  - simp_bolt
+```
+
+Additionally, either a password or ssh key must be specified for configuration
+of ssh to remote systems. Both can be specified in Hiera.  Passwords should be
+in **passwd-compatible salted hash** form.
 
 ## Usage
 
-**FIXME:** Ensure the *Usage* section is correct and complete, then remove this message!
+Once the simp_bolt module has been applied to a server and one or more target
+systems, Bolt is ready for use. All commands provided assume you have changed
+users to the appropriate account using `su` on the Bolt server system.
+Entering the command `bolt` by itself will display the help information.
 
-This section is where you describe how to customize, configure, and do the
-fancy stuff with your module here. It's especially helpful if you include usage
-examples and code samples for doing things with your module.
+To run a remote command, `su` to the bolt user and execute
+`bolt command run <COMMAND> --nodes <NODE NAME> --password --sudo-password`.
+By omitting values for password and sudo-password from the command line, the
+user will be prompted to enter the password so it will not be displayed on the
+command line. Commands can be run on multiple nodes by specifying additional 
+<NODE NAME> values, using commas to separate entries.
+
+To view available modules, `su` to the bolt user and execute
+`bolt puppetfile show-modules`.
+Additional modules already on the system can be added by specifiying the full
+path to their parent directory in Hiera by specifying
+```yaml
+simp_bolt::config::modulepath: /path/to/modules
+```
+
+To apply and existing manifest, `su` to the bolt user and execute
+`bolt apply <manifest> --nodes <NODE NAME> --password --sudo-password`.
 
 ## Reference
 
-**FIXME:** Ensure the *Reference* section is correct and complete, then remove this message!  If there is pre-generated YARD documentation for this module, ensure the text links to it and remove references to inline documentation.
-
-Please refer to the inline documentation within each source file, or to the
-module's generated YARD documentation for reference material.
+Please for refer to the online [Bolt](https://puppet.com/docs/bolt/latest/bolt.html)
+documentation for the most up to date documenation.
 
 ## Limitations
-
-**FIXME:** Ensure the *Limitations* section is correct and complete, then remove this message!
 
 SIMP Puppet modules are generally intended for use on Red Hat Enterprise Linux
 and compatible distributions, such as CentOS. Please see the
@@ -126,8 +146,6 @@ and compatible distributions, such as CentOS. Please see the
 supported operating systems, Puppet versions, and module dependencies.
 
 ## Development
-
-**FIXME:** Ensure the *Development* section is correct and complete, then remove this message!
 
 Please read our [Contribution Guide](http://simp-doc.readthedocs.io/en/stable/contributors_guide/index.html).
 
@@ -145,7 +163,7 @@ bundle install
 bundle exec rake beaker:suites
 ```
 
-**FIXME:** Ensure the *Acceptance tests* section is correct and complete, including any module-specific instructions, and remove this message!
+**TODO:**  There are currently no acceptance tests.  
 
 Please refer to the [SIMP Beaker Helpers documentation](https://github.com/simp/rubygem-simp-beaker-helpers/blob/master/README.md)
 for more information.
