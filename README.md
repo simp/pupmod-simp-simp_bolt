@@ -89,16 +89,16 @@ implementation and will install them if necessary.
 
 ### Beginning with simp_bolt
 
-To configure a system as a Puppet Bolt server, include the SIMP Bolt class and 
-specify Bolt server in Hiera.
+To configure a system as a Bolt server, include the SIMP Bolt class and specify
+Bolt server in Hiera.
 ```yaml
 classes:
   - simp_bolt
 simp_bolt::bolt_server: true
 ```
 
-To configure a system that be managed by Puppet Bolt, simply include the SIMP
-Bolt class in Hiera.
+To configure a system that will be managed by Bolt, simply include the SIMP Bolt
+class in Hiera.
 ```yaml
 classes:
   - simp_bolt

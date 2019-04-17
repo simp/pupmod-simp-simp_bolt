@@ -30,7 +30,7 @@
 # @param sudo_users
 #   The users that the ``username`` user may escalate to
 #
-# @param sudo_password
+# @param sudo_password_required
 #   Require password for user to sudo
 #
 # @param sudo_commands
@@ -57,9 +57,9 @@ class simp_bolt::user (
   Optional[String[1]] $ssh_authorized_key      = undef,
   String[1]           $ssh_authorized_key_type = 'ssh-rsa',
   String              $sudo_users              = 'root',
-  Boolean             $sudo_password           = true,
+  Boolean             $sudo_password_required  = true,
   Array[String]       $sudo_commands           = ['ALL'],
-  Array[String]       $allowed_from            = [ $::servername ],
+  Array[String]       $allowed_from            = [ $facts['puppet_server'] ],
   Integer             $max_logins              = 1
 ) {
   assert_private()
@@ -70,12 +70,14 @@ class simp_bolt::user (
   }
 
   if $enable{
+    if $username == 'root' {
+      fail("Due to restrictions on the Bolt user, you must use a different account than root")
+    }
+
     unless ($password or $ssh_authorized_key) {
       fail("You must specify either 'simp_bolt::user::password' or 'simp_bolt::user::ssh_authorized_key'")
     }
-  }
 
-  if $enable {
     file { $home:
       owner   => $username,
       group   => $username,
@@ -83,8 +85,8 @@ class simp_bolt::user (
       seltype => 'user_home_dir_t'
     }
 
-# Restrict login to ssh from Bolt servers unless system is Bolt server, in which case also permit 
-# local login
+# Restrict login to ssh from Bolt servers unless system is Bolt server, in which
+# case also permit login from local system via su or ssh
     if $::simp_bolt::bolt_server {
       $_allowed_from = ['LOCAL'] + $allowed_from
     } else {
@@ -113,7 +115,7 @@ class simp_bolt::user (
       user_list => [$username],
       runas     => $sudo_users,
       cmnd      => $sudo_commands,
-      passwd    => $sudo_password
+      passwd    => $sudo_password_required
     }
   }
 
@@ -133,10 +135,20 @@ class simp_bolt::user (
   }
 
   ssh_authorized_key { $username:
-    ensure => $_ensure,
-    key    => $ssh_authorized_key,
-    type   => $ssh_authorized_key_type,
-    user   => $username
+    ensure  => $_ensure,
+    key     => $ssh_authorized_key,
+    type    => $ssh_authorized_key_type,
+    user    => $username,
+  }
+
+# Set selinux context of ssh authorized_key file
+  if $facts['simplib__sshd_config']['authorizedkeysfile'] !~ '^/' {
+    $_ssh_authorizedkeysfile = "${home}/${facts['simplib__sshd_config']['authorizedkeysfile']}"
+  } else {
+    $_ssh_authorizedkeysfile = regsubst($facts['simplib__sshd_config']['authorizedkeysfile'], '%u', $username, 'G')
+  }
+  file { $_ssh_authorizedkeysfile:
+    seltype => 'sshd_key_t'
   }
 
 }

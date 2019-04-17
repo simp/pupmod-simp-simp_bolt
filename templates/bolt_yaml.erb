@@ -59,7 +59,7 @@
   end
 
   bolt_yaml << "  tmpdir: #{@ssh_tmpdir}"
-  bolt_yaml << "  ssh-user: #{@ssh_user}"
+  bolt_yaml << "  user: #{@ssh_user}"
 
   if @ssh_run_as
     bolt_yaml << "  run-as: #{@ssh_run_as}"
