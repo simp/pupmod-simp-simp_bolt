@@ -5,7 +5,6 @@ test_name 'simp_bolt class'
 describe 'simp_bolt class' do
   allowed_from       = hosts_with_role( hosts, 'boltserver' )
   allowed_from_fqdns = allowed_from.map { |host| fact_on(host, 'fqdn') }
-#require 'pry'; binding.pry
   let(:manifest) {
     <<-EOS
       include 'simp_bolt'

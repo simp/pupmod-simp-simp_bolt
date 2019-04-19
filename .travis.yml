@@ -59,12 +59,6 @@ jobs:
       script:
         - bundle exec rake spec
 
-    - stage: spec
-      rvm: 2.1.9
-      env: STRICT_VARIABLES=yes PUPPET_VERSION="~> 4.10.4"
-      script:
-        - bundle exec rake spec
-
     # Uncomment the following for deployment tasks and set 'secure' in both
     # sections appropriately
 #   - stage: deploy
