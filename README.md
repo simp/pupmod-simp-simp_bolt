@@ -65,18 +65,21 @@ it can be used independently:
 
 The simp_bolt module creates a local user account on systems, simp_bolt by 
 default, that has the ability to ``su`` to the root user on the system. Every
-effort has been taken to implement this as securely as possible. By
-default, the user is only permitted to login via ssh from specified hosts, with
-the exception of Bolt server which also permits local login to launch tasks. 
-The local user is limited to one login session for the execution of tasks, to 
-facilitate attestation.
+effort has been taken to implement this as securely as possible. Due to the
+potential to effectively lockout the account, the root user is not permitted 
+to be specified as the local user account. By default, the user is only 
+permitted to login via ssh from specified hosts. The local user is limited
+to one login for the execution of tasks, to facilitate attestation, except
+on systems specified bolt servers where two logins are permitted to allow the
+execution of tasks on the local machine.
 
 The user's home directory defaults to /var/local/simp_bolt. This location is
 used to store configuration files on the Bolt server and temporary files on the
-target systems. This can be configured to a different location if necessary.
+target systems. This can be configured to a different location if desired.
 
 Bolt logs are written to the /var/log/puppetlabs/bolt by default, and the 
-directory structure will be created if necessary.
+directory structure will be created if necessary. This can also be configured
+to an alternate location.
 
 By default, Bolt collects various analytics associated with a random UUID,
 details are available at
@@ -107,6 +110,10 @@ classes:
 Additionally, either a password or ssh key must be specified for configuration
 of ssh to remote systems. Both can be specified in Hiera.  Passwords should be
 in **passwd-compatible salted hash** form.
+```yaml
+simp_bolt::user::password: '$6$0BVLUF[...]16OtkdiY1'
+simp_bolt::user::ssh_authorized_key: 'AAAAB3Nza[...]qXfdaQ=='
+```
 
 ## Usage
 
@@ -162,8 +169,3 @@ tests run the following:
 bundle install
 bundle exec rake beaker:suites
 ```
-
-**TODO:**  There are currently no acceptance tests.  
-
-Please refer to the [SIMP Beaker Helpers documentation](https://github.com/simp/rubygem-simp-beaker-helpers/blob/master/README.md)
-for more information.

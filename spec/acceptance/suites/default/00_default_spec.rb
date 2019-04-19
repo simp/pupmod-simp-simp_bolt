@@ -3,6 +3,9 @@ require 'spec_helper_acceptance'
 test_name 'simp_bolt class'
 
 describe 'simp_bolt class' do
+  allowed_from       = hosts_with_role( hosts, 'boltserver' )
+  allowed_from_fqdns = allowed_from.map { |host| fact_on(host, 'fqdn') }
+#require 'pry'; binding.pry
   let(:manifest) {
     <<-EOS
       include 'simp_bolt'
@@ -23,12 +26,12 @@ describe 'simp_bolt class' do
       let(:target_hieradata) {
         <<-EOS
 ---
-simp_bolt::user::allowed_from: [ 'el7-boltserver' ]
+simp_bolt::user::allowed_from: #{allowed_from_fqdns}
 simp_bolt::user::ssh_authorized_key: #{ssh_authorized_key}
 simp_bolt::user::password: #{passwd}
         EOS
       }
-      it 'should create the user simp_bolt and directory structure' do
+      it "should create the user simp_bolt and directory structure on #{host.name}" do
         set_hieradata_on(host, target_hieradata)
         apply_manifest_on(host, manifest, :catch_failures => true)
       end
@@ -47,27 +50,27 @@ simp_bolt::user::password: #{passwd}
         <<-EOS
 ---
 simp_bolt::bolt_server: true
-simp_bolt::user::allowed_from: [ 'el7-boltserver' ]
+simp_bolt::user::allowed_from: #{allowed_from_fqdns}
 simp_bolt::user::ssh_authorized_key: #{ssh_authorized_key}
 simp_bolt::user::password: #{passwd}
         EOS
       }
 
-      it 'should install puppet bolt on bolt servers' do
+      it "should install puppet bolt on #{_boltserver.name}" do
         scp_to(_boltserver, File.join(files_dir, 'id_rsa.example'), '/var/local/simp_bolt/.ssh/id_rsa')
         on(_boltserver, 'chown -R simp_bolt:simp_bolt /var/local/simp_bolt/.ssh/id_rsa')
         set_hieradata_on(_boltserver, server_hieradata)
         apply_manifest_on(_boltserver, manifest, :catch_failures => true)
       end
 
-      let(:bolt_user) { 'simp_bolt' }
-      let(:run_cmd) { %(runuser #{bolt_user} -l -c ) }
-      let(:bolt_cmd) {"touch /var/local/#{_boltserver}"}
+      let(:run_cmd) {'runuser simp_bolt -l -c '}
+      let(:bolt_remote_cmd) {"touch /var/local/#{_boltserver}"}
 
-      it 'should execute a command on all systems via bolt' do
-        hosts.each do |host|
-          on(_boltserver, "#{run_cmd} bolt command run #{bolt_cmd} --nodes host --no-host-key-check --sudo-password password")
-          host.files_exist?("/var/local/#{_boltserver}")
+      hosts.each do |host|
+        it "should execute a command on #{host.name} system via bolt" do
+          bolt_cmd="bolt command run '#{bolt_remote_cmd}' --nodes #{host.name} --no-host-key-check --sudo-password password"
+          on(_boltserver, "#{run_cmd} \"#{bolt_cmd}\"")
+          host.file_exist?("/var/local/#{_boltserver}")
         end
       end
 

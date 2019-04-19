@@ -14,3 +14,4 @@ sec_results
 /junit
 /log
 /doc
+Gemfile.lock

@@ -6,11 +6,11 @@
   end
 -%>
 HOSTS:
-  oel7:
+  oel7-boltserver:
     roles:
       - default
-      - master
-      - client
+      - boltserver
+      - target
     platform:   el-7-x86_64
     box:        onxypoint/oel-7-x86_64
     hypervisor: <%= hypervisor %>
@@ -20,9 +20,34 @@ HOSTS:
         gpgkeys:
           - https://getfedora.org/static/352C64E5.txt
 
-  oel6:
+  oel7-target:
     roles:
-      - client
+      - target
+    platform:   el-7-x86_64
+    box:        onxypoint/oel-7-x86_64
+    hypervisor: <%= hypervisor %>
+    yum_repos:
+      epel:
+        mirrorlist: 'https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch'
+        gpgkeys:
+          - https://getfedora.org/static/352C64E5.txt
+
+  oel6-boltserver:
+    roles:
+      - boltserver
+      - target
+    platform:   el-6-x86_64
+    box:        onxypoint/oel-6-x86_64
+    hypervisor: <%= hypervisor %>
+    yum_repos:
+      epel:
+        mirrorlist: 'https://mirrors.fedoraproject.org/metalink?repo=epel-6&arch=$basearch'
+        gpgkeys:
+          - https://getfedora.org/static/0608B895.txt
+
+  oel6-target:
+    roles:
+      - target
     platform:   el-6-x86_64
     box:        onxypoint/oel-6-x86_64
     hypervisor: <%= hypervisor %>
