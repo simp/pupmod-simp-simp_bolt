@@ -14,11 +14,11 @@
   "dependencies": [
     {
       "name": "simp/simplib",
-      "version_requirement": ">= 3.11.0 < 4.0.0"
+      "version_requirement": ">= 3.14.1 < 4.0.0"
     },
     {
       "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 4.25.1 < 5.0.0"
+      "version_requirement": ">= 4.25.1 < 6.0.0"
     },
     {
       "name": "simp/pam",
@@ -55,7 +55,7 @@
   "requirements": [
     {
       "name": "puppet",
-      "version_requirement": ">= 4.10.4 < 6.0.0"
+      "version_requirement": ">= 5.5.10 < 7.0.0"
     }
   ]
 }
