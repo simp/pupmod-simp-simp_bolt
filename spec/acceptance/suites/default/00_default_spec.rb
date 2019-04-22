@@ -72,8 +72,6 @@ simp_bolt::user::password: #{passwd}
           host.file_exist?("/var/local/#{_boltserver}")
         end
       end
-
     end
-
   end
 end
