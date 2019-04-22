@@ -21,8 +21,8 @@
 #
 # @param modulepath
 #    The module path for loading tasks and plan code, formatted as a string containing a list
-#    directories.  The first directory listed will be the default for downloaded modules.  The
-#    default is "/etc/puppetlabs/bolt-code/modules:~/.puppetlabs/bolt-code/site-modules:
+#    of directories.  The first directory listed will be the default for downloaded modules.  
+#    The default is "/etc/puppetlabs/bolt-code/modules:~/.puppetlabs/bolt-code/site-modules:
 #    /etc/puppetlabs/code/environments/simp/modules"
 #
 # @param color
@@ -39,7 +39,7 @@
 #   hiera.yaml.
 #
 # @param inventoryfile
-#   Path to  a structured data inventory file used to refer to groups of nodes on the command
+#   Path to a structured data inventory file used to refer to groups of nodes on the command
 #   line and from plans.  By default this is to /etc/puppetlabs/bolt/inventory.yaml
 #
 # @param transport
@@ -66,11 +66,11 @@
 #   is /var/local.
 #
 # @param ssh_user
-#   The account used on the remote system used by Bolt.  The  default is the $username account
+#   The account, used by Bolt, on the remote system.  The default is the $username account
 #   specified in the user.pp manifest.
 #
 # @param ssh_run-as
-#   A different user to run commands as afterlogin.
+#   A different user to run commands as after login.
 #
 # @log_console_level
 #   The type of information to display on the console.  Valid options are debug, info, notice,
@@ -87,7 +87,7 @@
 #   Add output to an existing log file. By default this is true (default).
 #
 # @param disable_analytics
-#   A different user to run commands as afterlogin.
+#   A different user to run commands as after login.
 #
 class simp_bolt::config (
   String                                               $local_user         = $simp_bolt::user::username,
@@ -183,4 +183,3 @@ class simp_bolt::config (
     }
   }
 }
-
