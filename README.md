@@ -45,8 +45,8 @@ This module is a component of the
 [System Integrity Management Platform](https://simp-project.com), a
 compliance-management framework built on Puppet.
 
-If you find any issues, they may be submitted to our [bug
-tracker](https://simp-project.atlassian.net/).
+If you find any issues, they may be submitted to our 
+[bug tracker](https://simp-project.atlassian.net/).
 
 This module is optimally designed for use within a larger SIMP ecosystem, but
 it can be used independently:
@@ -70,8 +70,8 @@ potential to effectively lockout the account, the root user is not permitted
 to be specified as the local user account. By default, the user is only 
 permitted to login via ssh from specified hosts. The local user is limited
 to one login for the execution of tasks, to facilitate attestation, except
-on systems specified bolt servers where two logins are permitted to allow the
-execution of tasks on the local machine.
+on systems specified as 'bolt servers' where two logins are permitted to allow 
+the execution of tasks on the local machine.
 
 The user's home directory defaults to /var/local/simp_bolt. This location is
 used to store configuration files on the Bolt server and temporary files on the
@@ -81,14 +81,14 @@ Bolt logs are written to the /var/log/puppetlabs/bolt by default, and the
 directory structure will be created if necessary. This can also be configured
 to an alternate location.
 
-By default, Bolt collects various analytics associated with a random UUID,
-details are available at
+By default, Bolt collects various analytics associated with a random UUID, 
+non-identifiable user, details are available at 
 [Analytics data collection](https://puppet.com/docs/bolt/latest/bolt_installing.html#concept-8242)
-. The simp_bolt module overrides and disables this be default but it can be 
-re-enabled in Hiera.
+. The simp_bolt module overrides and disables this by default, but it can 
+be re-enabled in Hiera.
 
-The simp_bolt module relies upon the simp/pam and simp/sudo modules for
-implementation and will install them if necessary.
+The simp_bolt module relies upon the `simp/pam` and `simp/sudo` modules 
+for implementation and will install them if necessary.
 
 ### Beginning with simp_bolt
 
@@ -123,7 +123,7 @@ users to the appropriate account using `su` on the Bolt server system.
 Entering the command `bolt` by itself will display the help information.
 
 To run a remote command, `su` to the bolt user and execute
-`bolt command run <COMMAND> --nodes <NODE NAME> --password --sudo-password`.
+`bolt command run <COMMAND> --nodes <NODE NAME(S)> --password --sudo-password`.
 By omitting values for password and sudo-password from the command line, the
 user will be prompted to enter the password so it will not be displayed on the
 command line. Commands can be run on multiple nodes by specifying additional 
@@ -137,8 +137,8 @@ path to their parent directory in Hiera by specifying
 simp_bolt::config::modulepath: /path/to/modules
 ```
 
-To apply and existing manifest, `su` to the bolt user and execute
-`bolt apply <manifest> --nodes <NODE NAME> --password --sudo-password`.
+To apply an existing manifest, `su` to the bolt user and execute
+`bolt apply <manifest> --nodes <NODE NAME(S)> --password --sudo-password`.
 
 ## Reference
 
@@ -154,7 +154,7 @@ supported operating systems, Puppet versions, and module dependencies.
 
 ## Development
 
-Please read our [Contribution Guide](http://simp-doc.readthedocs.io/en/stable/contributors_guide/index.html).
+Please read our [Contribution Guide](https://simp.readthedocs.io/en/stable/contributors_guide/index.html).
 
 ### Acceptance tests
 
@@ -169,3 +169,5 @@ tests run the following:
 bundle install
 bundle exec rake beaker:suites
 ```
+
+Please refer to the [SIMP Beaker Helpers documentation](https://github.com/simp/rubygem-simp-beaker-helpers/blob/master/README.md) for more information.
