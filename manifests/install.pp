@@ -10,5 +10,4 @@ class simp_bolt::install {
   package { $::simp_bolt::package_name:
     ensure => present
   }
-
 }
