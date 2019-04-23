@@ -22,28 +22,28 @@
 # @param modulepath
 #   The module path for loading tasks and plan code, formatted as a string containing a list
 #   of directories. The first directory listed will be the default for downloaded modules.
-#   By default in Bolt this is "modules:site-modules:site" within the Bolt project directory 
+#   By default, in Bolt, this is "modules:site-modules:site" within the Bolt project directory 
 #   in `~/.puppetlabs/bolt`.
 #
 # @param color
-#   Whether to use colored output when printing messages to the console. By default in Bolt 
+#   Whether to use colored output when printing messages to the console. By default, in Bolt, 
 #   this is true.
 #
 # @param concurrency
-#   The number of threads to use when executing on remote nodes. By default in Bolt this 
+#   The number of threads to use when executing on remote nodes. By default, in Bolt, this 
 #   is 100.
 #
 # @param format
-#   The format to use when printing results; either human or json. By default in Bolt this
+#   The format to use when printing results; either human or json. By default, in Bolt, this
 #   is human.
 #
 # @param hiera_config
-#   The path to the Hiera config file. By default in Bolt this is `hiera.yaml` in the Bolt
+#   The path to the Hiera config file. By default, in Bolt, this is `hiera.yaml` in the Bolt
 #   project directory at `~/.puppetlabs/bolt`.
 #
 # @param inventoryfile
 #   Path to a structured data inventory file used to refer to groups of nodes on the command
-#   line and from plans. By default in Bolt this is `inventory.yaml` in the Bolt project
+#   line and from plans. By default, in Bolt, this is `inventory.yaml` in the Bolt project
 #   directory at `~/.puppetlabs/bolt`.
 #
 # @param transport
