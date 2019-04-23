@@ -4,87 +4,92 @@
 # == Class simp_bolt::config
 #
 # Setup Bolt configuration
-#   - Set the global configuration and transport options for Bolt.  Addtional details on the
+#   - Set the global configuration and transport options for Bolt. Addtional details on the
 #     options can be found at https://puppet.com/docs/bolt/latest/bolt_configuration_options.html.
 #
 # @param local_user
-#   The local account to be used for running Bolt.  The default is the $username account specified
+#   The local account to be used for running Bolt. The default is the $username account specified
 #   in the user.pp manifest.
 #
 # @param local_group
-#   The local group to be used for file permissions associated with the local_user account.  The 
+#   The local group to be used for file permissions associated with the local_user account. The 
 #   default is the $username account specified in the user.pp manifest.
 #
 # @param local_user_home
-#   The home directory of the local account to be used for running Bolt.  The default is the
+#   The home directory of the local account to be used for running Bolt. The default is the
 #   $home directory for the account specified in the user.pp manifest.
 #
 # @param modulepath
-#    The module path for loading tasks and plan code, formatted as a string containing a list
-#    of directories.  The first directory listed will be the default for downloaded modules.  
-#    The default is "/etc/puppetlabs/bolt-code/modules:~/.puppetlabs/bolt-code/site-modules:
-#    /etc/puppetlabs/code/environments/simp/modules"
+#   The module path for loading tasks and plan code, formatted as a string containing a list
+#   of directories. The first directory listed will be the default for downloaded modules.
+#   By default in Bolt this is "modules:site-modules:site" within the Bolt project directory 
+#   in `~/.puppetlabs/bolt`.
 #
 # @param color
-#    Whether to use colored output when printing messages to the console.  By default this is true.
+#   Whether to use colored output when printing messages to the console. By default in Bolt 
+#   this is true.
 #
 # @param concurrency
-#    The number of threads to use when executing on remote nodes.  By default this is 100.
+#   The number of threads to use when executing on remote nodes. By default in Bolt this 
+#   is 100.
 #
 # @param format
-#   The format to use when printing results; either human or json.  By default this is human.
+#   The format to use when printing results; either human or json. By default in Bolt this
+#   is human.
 #
-# @param hiera-config
-#   The path to the Hiera config file.  The default is set to /etc/puppetlabs/code/environments/simp/
-#   hiera.yaml.
+# @param hiera_config
+#   The path to the Hiera config file. By default in Bolt this is `hiera.yaml` in the Bolt
+#   project directory at `~/.puppetlabs/bolt`.
 #
 # @param inventoryfile
 #   Path to a structured data inventory file used to refer to groups of nodes on the command
-#   line and from plans.  By default this is to /etc/puppetlabs/bolt/inventory.yaml
+#   line and from plans. By default in Bolt this is `inventory.yaml` in the Bolt project
+#   directory at `~/.puppetlabs/bolt`.
 #
 # @param transport
-#   The default transport to use when not specified in the URL or inventory.  Valid options
-#   for transport are docker, local, pcp, ssh, and winrm.  By default this is ssh.
+#   The default transport to use when not specified in the URL or inventory. Valid options
+#   for transport are docker, local, pcp, ssh, and winrm. By default in Bolt this is ssh.
 #
-# @param ssh_host-key-check
-#   Whether to perform host key validation when connecting over SSH.  By default this is true.
+# @param ssh_host_key_check
+#   Whether to perform host key validation when connecting over SSH. By default in Bolt this
+#   is true.
 #
 # @param ssh_password
 #   Login password for the remote system. Saving the password in plaintext is not recommended.
 #
 # @param ssh_port
-#   Connection port.  By default this is 22.
+#   Connection port. By default in Bolt this is 22.
 #
-# @param ssh_private-key
+# @param ssh_private_key
 #   The path to the private key file to use for SSH authentication.
 #
 # @param ssh_proxyjump
 #   A jump host to proxy SSH connections through.
 #
 # @param ssh_tmpdir
-#   The directory to upload and execute temporarty files on the target system.  The default
+#   The directory to upload and execute temporarty files on the target system. The default
 #   is /var/local.
 #
 # @param ssh_user
-#   The account, used by Bolt, on the remote system.  The default is the $username account
+#   The account, used by Bolt, on the remote system. The default is the $username account
 #   specified in the user.pp manifest.
 #
-# @param ssh_run-as
+# @param ssh_run_as
 #   A different user to run commands as after login.
 #
-# @log_console_level
-#   The type of information to display on the console.  Valid options are debug, info, notice,
-#   warn, and error.  The default is info.
+# @param log_console_level
+#   The type of information to display on the console. Valid options are debug, info, notice,
+#   warn, and error. The default is info.
 #
-# @log_file
+# @param log_file
 #   The path and name of the log file.
 #
-# @log_file_level
-#   The type of information to record in the log file.  Valid options are debug, info, notice,
-#   warn, and error.  By default this is info.
+# @param log_file_level
+#   The type of information to record in the log file. Valid options are debug, info, notice,
+#   warn, and error. By default in Bolt this is info.
 #
-# @log_file_append
-#   Add output to an existing log file. By default this is true (default).
+# @param log_file_append
+#   Add output to an existing log file. By default in Bolt this is true.
 #
 # @param disable_analytics
 #   A different user to run commands as after login.
