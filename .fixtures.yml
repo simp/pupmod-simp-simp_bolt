@@ -8,9 +8,10 @@ fixtures:
       ref: 4.1.1
     iptables: https://github.com/simp/pupmod-simp-iptables
     pam: https://github.com/simp/pupmod-simp-pam
-    simplib: 
-      repo: https://github.com/m-morrone/pupmod-simp-simplib
-      branch: SIMP-6366
+    oddjob: https://github.com/simp/pupmod-simp-oddjob
+    simplib: https://github.com/simp/pupmod-simp-simplib
+#      repo: https://github.com/m-morrone/pupmod-simp-simplib
+#      branch: SIMP-6366
     sshkeys_core:
       repo: https://github.com/simp/pupmod-puppetlabs-sshkeys_core.git
       puppet_version: ">= 6.0.0"

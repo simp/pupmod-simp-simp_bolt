@@ -94,10 +94,10 @@
 # @param disable_analytics
 #   A different user to run commands as after login.
 #
-class simp_bolt::config (
-  String                                               $local_user         = $simp_bolt::user::username,
-  String                                               $local_group        = $simp_bolt::user::username,
-  Pattern['^/']                                        $local_user_home    = $simp_bolt::user::home,
+class simp_bolt::controller::config (
+  Optional[String]                                     $local_user         = $simp_bolt::controller::local_user_name,
+  Optional[String]                                     $local_group        = $simp_bolt::controller::local_group_name,
+  Optional[Pattern['^/']]                              $local_home         = $simp_bolt::controller::local_user_home,
   Optional[String]                                     $modulepath         = undef,
   Optional[Boolean]                                    $color              = undef,
   Optional[Integer[0]]                                 $concurrency        = undef,
@@ -110,9 +110,9 @@ class simp_bolt::config (
   Optional[Integer[0]]                                 $ssh_port           = undef,
   Optional[String]                                     $ssh_private_key    = undef,
   Optional[String]                                     $ssh_proxyjump      = undef,
-  String                                               $ssh_tmpdir         = $simp_bolt::user::home,
-  String                                               $ssh_user           = $simp_bolt::user::username,
-  String                                               $ssh_run_as         = 'root',
+  String                                               $ssh_tmpdir         = $simp_bolt::target::user_home,
+  String                                               $ssh_user           = $simp_bolt::target::user_name,
+  String                                               $ssh_run_as         = $simp_bolt::target::user_sudo_user,
   Enum['debug', 'info', 'notice', 'warn', 'error']     $log_console_level  = 'info',
   String                                               $log_file           = '/var/log/puppetlabs/bolt/bolt.log',
   Enum['debug', 'info', 'notice', 'warn', 'error']     $log_file_level     = 'info',
@@ -121,31 +121,80 @@ class simp_bolt::config (
 ){
   assert_private()
 
-# Define and create the Boltdir and its parent directory
-  $_bolt_dir_parent = "${local_user_home}/.puppetlabs"
-  $_bolt_dir = "${local_user_home}/.puppetlabs/bolt"
+# If local user and home directory are specified create the Boltdir and its parent directory
+  if $local_user and $local_home {
+    exec { "mkdir -p ${local_home}":
+      path   => ['/bin','/usr/bin'],
+      onlyif => "test ! -d ${local_home}"
+    }
 
-  file { $_bolt_dir_parent:
-    ensure => 'directory',
-    owner  => $local_user,
-    group  => $local_group,
-    mode   => '0750'
-  }
+    $_bolt_dir_parent = "${local_home}/.puppetlabs"
+    $_bolt_dir = "${local_home}/.puppetlabs/bolt"
 
-  file { $_bolt_dir:
-    ensure => 'directory',
-    owner  => $local_user,
-    group  => $local_group,
-    mode   => '0750'
-  }
+    file { $_bolt_dir_parent:
+      ensure => 'directory',
+      owner  => $local_user,
+      group  => $local_group,
+      mode   => '0750'
+    }
 
-# Create the config file for bolt
-  file { "${_bolt_dir}/bolt.yaml":
-    ensure  => 'file',
-    owner   => $local_user,
-    group   => $local_group,
-    mode    => '0750',
-    content => template("${module_name}/bolt_yaml.erb")
+    file { $_bolt_dir:
+      ensure => 'directory',
+      owner  => $local_user,
+      group  => $local_group,
+      mode   => '0750'
+    }
+
+  # Create the config file for bolt
+    file { "${_bolt_dir}/bolt.yaml":
+      ensure  => 'file',
+      owner   => $local_user,
+      group   => $local_group,
+      mode    => '0640',
+      content => template("${module_name}/bolt_yaml.erb")
+    }
+  } else {
+
+# If local user is not specified, create a sample Boltdir but make root the owner 
+# If local home is not specified, create a sample Boltdir at /user/local/simb_bolt and make root the owner 
+    if $local_home {
+      $_local_home = $local_home
+    } else {
+      $_local_home = '/var/local/simp_bolt'
+    }
+
+    file { $_local_home:
+      ensure => 'directory',
+      owner  => 'root',
+      group  => 'root',
+      mode   => '0755'
+    }
+
+    $_bolt_dir_parent = "${_local_home}/puppetlabs"
+    $_bolt_dir = "${_local_home}/puppetlabs/bolt"
+
+    file { $_bolt_dir_parent:
+      ensure => 'directory',
+      owner  => 'root',
+      group  => 'root',
+      mode   => '0755'
+    }
+
+    file { $_bolt_dir:
+      ensure => 'directory',
+      owner  => 'root',
+      group  => 'root',
+      mode   => '0755'
+    }
+
+  # Create the config file for bolt
+    file { "${_bolt_dir}/bolt.yaml":
+      ensure  => 'file',
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0644',
+      content => template("${module_name}/bolt_yaml.erb")
+    }
   }
 
 # Ensure the directory for the log files exists

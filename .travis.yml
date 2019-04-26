@@ -34,7 +34,7 @@ addons:
 
 before_install:
   - rm -f Gemfile.lock
-  - gem install -v '~> 1.17' bundler
+  - gem install -v '~> 1.17, <2' bundler
 
 global:
   - STRICT_VARIABLES=yes

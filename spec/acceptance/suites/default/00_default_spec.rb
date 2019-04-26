@@ -12,7 +12,7 @@ describe 'simp_bolt class' do
   }
   let(:files_dir) { File.join(File.dirname(__FILE__), 'files') }
   let(:ssh_authorized_key) {
-'AAAAB3NzaC1yc2EAAAADAQABAAACAQDI9DPUsQXNTqU2nWShmMCnGOXPDYazX4yHFrI7Xw3p/r62Li6zaSSNuJ8varX24j8NNMK9EeYcQnrkEu+PE7kO7UTnat3AQFASAlnZTkqo4F/bQjoVEvVaZHaAupiiQYMJny+8R/0VrPGQGx3IR2ORuMs0nAZjjZK3pdmMNNi284Rox3qi9qCeQY0yO3sdyygRwtKyAJvOSwTVrTuYQrMVzWbWsbBk7wO27A7bwbaCZ/nZFzjwB+t3HTJ2t9ZSxCtH0tnvPUEtswZdVN+yAKwka8dyULvhnGtfc8wcA8OJoYmb5Sqh67QU+ofBRkj1I0F33VfEyrNME9q5jT0V2/uS5WJjUNPScBZeZjR60ZA791ZrmyAw9ybK55h8SNmZWi3/PyteaZnHVY4fe0M38MtHy2qh+vBp2o/aVIhGo/cWotQpZaPMnJeNzqlvNQXm04Rz+5BeOZBAOLH/TiJFXpEoNYLYPSy7p1Y22QKPoMmgjp5MiCvBhY1v60rHnogBOTor5rebD2R+KyVK6beLb/nABCoJNvquefE+fpo/5+zVr9IfCDnnTJLKtUuNetk6D0gl76bhsfiEsWz2r1ND7ihXjcv3z3v38V4mr8m3cmAuVU7mNYHZvwM5i55VNitS1qUiSkvccKBbnxa15e0YxXUfnq8PI/Yq2Iky/K4am/XMkw=='
+['AAAAB3NzaC1yc2EAAAADAQABAAACAQDI9DPUsQXNTqU2nWShmMCnGOXPDYazX4yHFrI7Xw3p/r62Li6zaSSNuJ8varX24j8NNMK9EeYcQnrkEu+PE7kO7UTnat3AQFASAlnZTkqo4F/bQjoVEvVaZHaAupiiQYMJny+8R/0VrPGQGx3IR2ORuMs0nAZjjZK3pdmMNNi284Rox3qi9qCeQY0yO3sdyygRwtKyAJvOSwTVrTuYQrMVzWbWsbBk7wO27A7bwbaCZ/nZFzjwB+t3HTJ2t9ZSxCtH0tnvPUEtswZdVN+yAKwka8dyULvhnGtfc8wcA8OJoYmb5Sqh67QU+ofBRkj1I0F33VfEyrNME9q5jT0V2/uS5WJjUNPScBZeZjR60ZA791ZrmyAw9ybK55h8SNmZWi3/PyteaZnHVY4fe0M38MtHy2qh+vBp2o/aVIhGo/cWotQpZaPMnJeNzqlvNQXm04Rz+5BeOZBAOLH/TiJFXpEoNYLYPSy7p1Y22QKPoMmgjp5MiCvBhY1v60rHnogBOTor5rebD2R+KyVK6beLb/nABCoJNvquefE+fpo/5+zVr9IfCDnnTJLKtUuNetk6D0gl76bhsfiEsWz2r1ND7ihXjcv3z3v38V4mr8m3cmAuVU7mNYHZvwM5i55VNitS1qUiSkvccKBbnxa15e0YxXUfnq8PI/Yq2Iky/K4am/XMkw==','AAAAB3NzaC1yc2EAAAADAQABAAACAQDI9DPUsQXNTqU2nWShmMCnGOXPDYazX4yHFrI7Xw3p/r62Li6zaSSNuJ8varX24j8NNMK9EeYcQnrkEu+PE7kO7UTnat3AQFASAlnZTkqo4F/bQjoVEvVaZHaAupiiQYMJny+8R/0VrPGQGx3IR2ORuMs0nAZjjZK3pdmMNNi284Rox3qi9qCeQY0yO3sdyygRwtKyAJvOSwTVrTuYQrMVzWbWsbBk7wO27A7bwbaCZ/nZFzjwB+t3HTJ2t9ZSxCtH0tnvPUEtswZdVN+yAKwka8dyULvhnGtfc8wcA8OJoYmb5Sqh67QU+ofBRkj1I0F33VfEyrNME9q5jT0V2/uS5WJjUNPScBZeZjR60ZA791ZrmyAw9ybK55h8SNmZWi3/PyteaZnHVY4fe0M38MtHy2qh+vBp2o/aVIhGo/cWotQpZaPMnJeNzqlvNQXm04Rz+5BeOZBAOLH/TiJFXpEoNYLYPSy7p1Y22QKPoMmgjp5MiCvBhY1v60rHnogBOTor5rebD2R+KyVK6beLb/nABCoJNvquefE+fpo/5+zVr9IfCDnnTJLKtUuNetk6D0gl76bhsfiEsWz2r1ND7ihXjcv3z3v38V4mr8m3cmAuVU7mNYHZvwM5i55VNitS1qUiSkvccKBbnxa15e0Yq8PI/YqABogusKeyForTesting==']
   }
   let(:passwd) {'$6$0BVLUFTByfXbi4$OkGTJrGMkhr44IUHpWKss94af63UoLH3qab9Oikzj6GnscLPV18oKEDIIb3lYDAEI7bw7nYeJKzWc16OtkdiY1'}
 
@@ -25,9 +25,11 @@ describe 'simp_bolt class' do
       let(:target_hieradata) {
         <<-EOS
 ---
-simp_bolt::user::allowed_from: #{allowed_from_fqdns}
-simp_bolt::user::ssh_authorized_key: #{ssh_authorized_key}
-simp_bolt::user::password: #{passwd}
+simp_bolt::bolt_target: true
+simp_bolt::target::enable_user: true
+simp_bolt::target::manage_user_security: true
+simp_bolt::target::user_allowed_from: #{allowed_from_fqdns}
+simp_bolt::target::user_ssh_authorized_keys: #{ssh_authorized_key}
         EOS
       }
       it "should create the user simp_bolt and directory structure on #{host.name}" do
@@ -48,10 +50,16 @@ simp_bolt::user::password: #{passwd}
       let(:server_hieradata) {
         <<-EOS
 ---
-simp_bolt::bolt_server: true
-simp_bolt::user::allowed_from: #{allowed_from_fqdns}
-simp_bolt::user::ssh_authorized_key: #{ssh_authorized_key}
-simp_bolt::user::password: #{passwd}
+simp_bolt::bolt_target: true
+simp_bolt::bolt_controller: true
+simp_bolt::target::enable_user: true
+simp_bolt::target::manage_user_security: true
+simp_bolt::target::user_max_logins: 2
+simp_bolt::target::user_allowed_from: #{allowed_from_fqdns}
+simp_bolt::target::user_ssh_authorized_keys: #{ssh_authorized_key}
+simp_bolt::controller::local_user_name: simp_bolt
+simp_bolt::controller::local_group_name: simp_bolt
+simp_bolt::controller::local_user_home: /var/local/simp_bolt
         EOS
       }
 

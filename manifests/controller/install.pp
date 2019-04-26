@@ -4,7 +4,7 @@
 #
 # This class is called from simp_bolt for install.
 #
-class simp_bolt::install {
+class simp_bolt::controller::install {
   assert_private()
 
   package { $::simp_bolt::package_name:
