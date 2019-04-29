@@ -30,8 +30,8 @@
 ## Description
 
 This module manages Puppet Bolt. It installs and configures the necessary 
-packages on systems specified as Bolt servers and ensures accounts are created
-on both servers and target systems to be managed with Bolt.
+packages on systems specified as Bolt controllers and configures accounts as
+specified on both controllers and target systems to be managed with Bolt.
 
 Bolt is task runner that permits automation on an as-needed basis. This means
 that all actions are initiated from the Bolt server, eliminating reliance upon
@@ -63,19 +63,21 @@ it can be used independently:
 
 ### What simp_bolt affects
 
-The simp_bolt module creates a local user account on systems, simp_bolt by 
-default, that has the ability to ``su`` to the root user on the system. Every
-effort has been taken to implement this as securely as possible. Due to the
-potential to effectively lockout the account, the root user is not permitted 
-to be specified as the local user account. By default, the user is only 
-permitted to login via ssh from specified hosts. The local user is limited
-to one login for the execution of tasks, to facilitate attestation, except
-on systems specified as 'bolt servers' where two logins are permitted to allow 
-the execution of tasks on the local machine.
+The simp_bolt module can create a local user account on target systems, 
+simp_bolt by default, that has the ability to ``su`` to the root user on the
+system. Every effort has been taken to implement this as securely as possible by
+including an option to manage user security settings. Due to the potential to
+effectively lockout the account, the root user is not permitted to be specified
+as the target user account if manage user security settings is enabled. The
+target user can be restricted to only login via ssh from specified hosts and
+also limited to only one login session at a time for the execution of tasks.
+Multiple ssh keys can be specified for the target user to permit different user
+accounts on the controller to run bolt and provide a degree of attestation.
 
-The user's home directory defaults to /var/local/simp_bolt. This location is
-used to store configuration files on the Bolt server and temporary files on the
-target systems. This can be configured to a different location if desired.
+
+The target user's home directory defaults to /var/local/simp_bolt. This location
+is used for temporary files on the target systems. This can be configured to a
+different location if desired.
 
 Bolt logs are written to the /var/log/puppetlabs/bolt by default, and the 
 directory structure will be created if necessary. This can also be configured
@@ -92,12 +94,12 @@ for implementation and will install them if necessary.
 
 ### Beginning with simp_bolt
 
-To configure a system as a Bolt server, include the SIMP Bolt class and specify
+To configure a system as a Bolt controller, include the SIMP Bolt class and specify
 Bolt server in Hiera.
 ```yaml
 classes:
   - simp_bolt
-simp_bolt::bolt_server: true
+simp_bolt::bolt_controller: true
 ```
 
 To configure a system that will be managed by Bolt, simply include the SIMP Bolt
@@ -105,6 +107,7 @@ class in Hiera.
 ```yaml
 classes:
   - simp_bolt
+simp_bolt::bolt_target: true
 ```
 
 Additionally, either a password or ssh key must be specified for configuration
