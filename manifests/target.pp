@@ -53,7 +53,7 @@ class simp_bolt::target (
   String                     $user_name                    = 'simp_bolt',
   Boolean                    $manage_user_security         = false,
   Optional[String[8]]        $user_password                = undef,
-  Pattern['^/']              $user_home                    = "/var/local/${user_name}",
+  Stdlib::Unixpath           $user_home                    = "/var/local/${user_name}",
   Integer                    $user_uid                     = 1779,
   Integer                    $user_gid                     = $user_uid,
   Optional[Array[String[1]]] $user_ssh_authorized_keys     = undef,

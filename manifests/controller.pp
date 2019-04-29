@@ -12,9 +12,9 @@
 # @author SIMP Team <https://simp-project.com/>
 #
 class simp_bolt::controller (
-  Optional[String]        $local_user_name  = undef,
-  Optional[String]        $local_group_name = undef,
-  Optional[Pattern['^/']] $local_user_home  = undef,
+  Optional[String]           $local_user_name  = undef,
+  Optional[String]           $local_group_name = undef,
+  Optional[Stdlib::Unixpath] $local_user_home  = undef,
 ) {
   assert_private()
 

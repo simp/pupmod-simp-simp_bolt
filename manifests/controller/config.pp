@@ -97,7 +97,7 @@
 class simp_bolt::controller::config (
   Optional[String]                                     $local_user         = $simp_bolt::controller::local_user_name,
   Optional[String]                                     $local_group        = $simp_bolt::controller::local_group_name,
-  Optional[Pattern['^/']]                              $local_home         = $simp_bolt::controller::local_user_home,
+  Optional[Stdlib::Unixpath]                           $local_home         = $simp_bolt::controller::local_user_home,
   Optional[String]                                     $modulepath         = undef,
   Optional[Boolean]                                    $color              = undef,
   Optional[Integer[0]]                                 $concurrency        = undef,

@@ -52,7 +52,7 @@ class simp_bolt::target::user (
   String                     $username                = $simp_bolt::target::user_name,
   Boolean                    $manage                  = $simp_bolt::target::manage_user_security,
   Optional[String[8]]        $password                = $simp_bolt::target::user_password,
-  Pattern['^/']              $home                    = $simp_bolt::target::user_home,
+  Stdlib::Unixpath           $home                    = $simp_bolt::target::user_home,
   Integer                    $uid                     = $simp_bolt::target::user_uid,
   Integer                    $gid                     = $simp_bolt::target::user_gid,
   Optional[Array[String[1]]] $ssh_authorized_keys     = $simp_bolt::target::user_ssh_authorized_keys,
@@ -95,8 +95,8 @@ class simp_bolt::target::user (
       purge_ssh_keys => true
     }
 
-    $ssh_authorized_keys.each |String $key| {
-      ssh_authorized_key { $key[-20,20]:
+    $ssh_authorized_keys.each |Integer $index, String $key| {
+      ssh_authorized_key { "user${index}":
         ensure => $_ensure,
         key    => $key,
         type   => $ssh_authorized_key_type,
