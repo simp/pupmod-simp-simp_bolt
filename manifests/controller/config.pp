@@ -1,18 +1,16 @@
 # **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 #
-
-# == Class simp_bolt::config
+# @summary Set the global configuration and transport options for Bolt.
 #
-# Setup Bolt configuration
-#   - Set the global configuration and transport options for Bolt. Addtional details on the
-#     options can be found at https://puppet.com/docs/bolt/latest/bolt_configuration_options.html.
+# Addtional details on the options can be found at
+# https://puppet.com/docs/bolt/latest/bolt_configuration_options.html.
 #
 # @param local_user
 #   The local account to be used for running Bolt. The default is the $username account specified
 #   in the user.pp manifest.
 #
 # @param local_group
-#   The local group to be used for file permissions associated with the local_user account. The 
+#   The local group to be used for file permissions associated with the local_user account. The
 #   default is the $username account specified in the user.pp manifest.
 #
 # @param local_user_home
@@ -22,15 +20,15 @@
 # @param modulepath
 #   The module path for loading tasks and plan code, formatted as a string containing a list
 #   of directories. The first directory listed will be the default for downloaded modules.
-#   By default, in Bolt, this is "modules:site-modules:site" within the Bolt project directory 
+#   By default, in Bolt, this is "modules:site-modules:site" within the Bolt project directory
 #   in `~/.puppetlabs/bolt`.
 #
 # @param color
-#   Whether to use colored output when printing messages to the console. By default, in Bolt, 
+#   Whether to use colored output when printing messages to the console. By default, in Bolt,
 #   this is true.
 #
 # @param concurrency
-#   The number of threads to use when executing on remote nodes. By default, in Bolt, this 
+#   The number of threads to use when executing on remote nodes. By default, in Bolt, this
 #   is 100.
 #
 # @param format
@@ -121,7 +119,7 @@ class simp_bolt::controller::config (
 ){
   assert_private()
 
-# If local user and home directory are specified create the Boltdir and its parent directory
+  # If local user and home directory are specified create the Boltdir and its parent directory
   if $local_user and $local_home {
     exec { "mkdir -p ${local_home}":
       path   => ['/bin','/usr/bin'],
@@ -145,7 +143,7 @@ class simp_bolt::controller::config (
       mode   => '0750'
     }
 
-  # Create the config file for bolt
+    # Create the config file for bolt
     file { "${_bolt_dir}/bolt.yaml":
       ensure  => 'file',
       owner   => $local_user,
@@ -155,8 +153,8 @@ class simp_bolt::controller::config (
     }
   } else {
 
-# If local user is not specified, create a sample Boltdir but make root the owner 
-# If local home is not specified, create a sample Boltdir at /user/local/simb_bolt and make root the owner 
+    # If local user is not specified, create a sample Boltdir but make root the owner
+    # If local home is not specified, create a sample Boltdir at /user/local/simb_bolt and make root the owner
     if $local_home {
       $_local_home = $local_home
     } else {
@@ -197,14 +195,14 @@ class simp_bolt::controller::config (
     }
   }
 
-# Ensure the directory for the log files exists
+  # Ensure the directory for the log files exists
   $log_dir = dirname($log_file)
   exec { "mkdir -p ${log_dir}":
     path   => ['/bin','/usr/bin'],
     onlyif => "test ! -d ${log_dir}"
   }
 
-# Set permissions on the directory for the log files
+  # Set permissions on the directory for the log files
   file { $log_dir:
     ensure => 'directory',
     owner  => $local_user,
@@ -213,7 +211,7 @@ class simp_bolt::controller::config (
   }
 
 
-# Create the config file for analytics
+  # Create the config file for analytics
   file { "${_bolt_dir}/analytics.yaml":
     ensure => present,
     owner  => $local_user,
@@ -221,7 +219,7 @@ class simp_bolt::controller::config (
     mode   => '0750'
   }
 
-# Ensure analytics are correctly enabled or disabled
+  # Ensure analytics are correctly enabled or disabled
   if $disable_analytics {
     file_line { 'analytics_yaml':
       ensure => present,

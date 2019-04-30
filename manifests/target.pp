@@ -1,10 +1,10 @@
-# Configure a system to be managed by Puppet Bolt
+# @summary Configure a system to be managed by Puppet Bolt
 #
 # @param user_name
 #   The username to use for remote access
 #
-# @param manage_user
-#   Create and manage the local user account
+# @param disallowed_users
+#   Users that may not be used for the ``bolt`` user
 #
 # @param user_password
 #   The password for the user in passwd-compatible salted hash form
@@ -51,7 +51,7 @@
 class simp_bolt::target (
   Boolean                    $enable_user                  = false,
   String                     $user_name                    = 'simp_bolt',
-  Boolean                    $manage_user_security         = false,
+  Array[String[1]]           $disallowed_users             = ['root'],
   Optional[String[8]]        $user_password                = undef,
   Stdlib::Unixpath           $user_home                    = "/var/local/${user_name}",
   Integer                    $user_uid                     = 1779,
@@ -61,7 +61,7 @@ class simp_bolt::target (
   String                     $user_sudo_user               = 'root',
   Boolean                    $user_sudo_password_required  = false,
   Array[String]              $user_sudo_commands           = ['ALL'],
-  Array[String]              $user_allowed_from            = [ $facts['puppet_server'] ],
+  Array[String]              $user_allowed_from            = [pick(fact('puppet_server'), '127.0.0.1')],
   Integer                    $user_max_logins              = 1
 ) {
   assert_private()
@@ -72,13 +72,12 @@ class simp_bolt::target (
     }
   }
 
-  if $manage_user_security{
-    if $user_name == 'root' {
-      fail('Due to restrictions on the Bolt user, you must use a different account than root')
-    }
+  if $user_name in $disallowed_users {
+    $_err_str = join($disallowed_users, "', '")
+    fail("Due to security ramificaitons, '\$user_name' cannot be one of '${_err_str}'")
   }
 
   if $simp_bolt::bolt_target{
-    include '::simp_bolt::target::user'
+    include 'simp_bolt::target::user'
   }
 }

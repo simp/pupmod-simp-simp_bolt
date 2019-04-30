@@ -1,6 +1,6 @@
 # NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 #
-# Configure a 'simp_bolt' system user
+# @summary Configure a 'simp_bolt' system user
 #
 # @param username
 #   The username to use for remote access
@@ -70,8 +70,7 @@ class simp_bolt::target::user (
     default => 'absent'
   }
 
-  if $enable{
-
+  if $enable {
     file { $home:
       owner   => $username,
       group   => $username,
@@ -104,7 +103,7 @@ class simp_bolt::target::user (
       }
     }
 
-# Set selinux context of ssh authorized_key file
+    # Set selinux context of ssh authorized_key file
     if $ssh_authorized_keys {
       if $facts['simplib__sshd_config']['AuthorizedKeysFile'] !~ '^/' {
         $_ssh_authorizedkeysfile = "${home}/${facts['simplib__sshd_config']['AuthorizedKeysFile']}"
@@ -117,13 +116,12 @@ class simp_bolt::target::user (
     }
   }
 
-  if $manage{
-
+  if $manage {
     simplib::assert_optional_dependency($module_name, 'simp/pam')
 
-# Restrict login for user ssh to only specified Bolt servers 
-# If system is also a Bolt server, allow login from localhost 
-    if $::simp_bolt::bolt_controller {
+    # Restrict login for user ssh to only specified Bolt servers
+    # If system is also a Bolt server, allow login from localhost
+    if $simp_bolt::bolt_controller {
       $_allowed_from = ['LOCAL'] + $allowed_from
     } else {
       $_allowed_from = $allowed_from
@@ -134,8 +132,10 @@ class simp_bolt::target::user (
       comment => 'SIMP BOLT user, restricted to remote access from specified BOLT systems'
     }
 
-# Include an extra login session on the server to allow for running Bolt on itself
-    if $::simp_bolt::bolt_controller {
+    # Include an extra login session on the server to allow for running Bolt on
+    # itself
+
+    if $simp_bolt::bolt_controller {
       $_max_logins = $max_logins + 1
     } else {
       $_max_logins = $max_logins

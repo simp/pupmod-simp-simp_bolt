@@ -1,4 +1,4 @@
-# Installs and configures Puppet Bolt for use within the SIMP enviroment
+# @summary Installs and configures Puppet Bolt for use within the SIMP enviroment
 #
 # @param local_user_name
 #   The username of the local user account to launch bolt commands
@@ -18,11 +18,11 @@ class simp_bolt::controller (
 ) {
   assert_private()
 
-  include '::simp_bolt::controller::install'
-  include '::simp_bolt::controller::config'
+  include 'simp_bolt::controller::install'
+  include 'simp_bolt::controller::config'
 
-  Class[ '::simp_bolt::controller::install' ]
-    -> Class[ '::simp_bolt::controller::config' ]
+  Class[ 'simp_bolt::controller::install' ]
+    -> Class[ 'simp_bolt::controller::config' ]
 
 }
 
