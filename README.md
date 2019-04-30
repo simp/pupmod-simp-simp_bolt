@@ -20,10 +20,10 @@
 
 ---
 
-    +---------------------------------------------------------------+
-    | WARNING: This is currently an **EXPERIMENTAL** module things  |
-    | may change drastically, and in breaking ways, without notice! |
-    +---------------------------------------------------------------+
+    +----------------------------------------------------------------+
+    | WARNING: This is currently an **EXPERIMENTAL** module. Things  |
+    | may change drastically, and in breaking ways, without notice!  |
+    +----------------------------------------------------------------+
 
 ---
 
@@ -96,6 +96,7 @@ for implementation and will install them if necessary.
 
 To configure a system as a Bolt controller, include the SIMP Bolt class and specify
 Bolt server in Hiera.
+
 ```yaml
 classes:
   - simp_bolt
@@ -104,6 +105,7 @@ simp_bolt::bolt_controller: true
 
 To configure a system that will be managed by Bolt, simply include the SIMP Bolt
 class in Hiera.
+
 ```yaml
 classes:
   - simp_bolt
@@ -113,6 +115,7 @@ simp_bolt::bolt_target: true
 Additionally, either a password or ssh key must be specified for configuration
 of ssh to remote systems. Both can be specified in Hiera.  Passwords should be
 in **passwd-compatible salted hash** form.
+
 ```yaml
 simp_bolt::user::password: '$6$0BVLUF[...]16OtkdiY1'
 simp_bolt::user::ssh_authorized_key: 'AAAAB3Nza[...]qXfdaQ=='
@@ -134,8 +137,9 @@ command line. Commands can be run on multiple nodes by specifying additional
 
 To view available modules, `su` to the bolt user and execute
 `bolt puppetfile show-modules`.
-Additional modules already on the system can be added by specifiying the full
-path to their parent directory in Hiera by specifying
+Additional modules already on the system can be added by specifying the full
+path to their parent directory in Hiera:
+
 ```yaml
 simp_bolt::config::modulepath: /path/to/modules
 ```
