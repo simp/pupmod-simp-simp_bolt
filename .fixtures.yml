@@ -1,17 +1,12 @@
 ---
 fixtures:
   repositories:
-    concat:
-      # master is beyond 4.1.1, but has breaking changes to
-      # how fragments are ordered (MODULES-6625)
-      repo: https://github.com/simp/puppetlabs-concat
-      ref: 4.1.1
+    concat: https://github.com/simp/puppetlabs-concat
+    compliance_markup: https://github.com/simp/pupmod-simp-compliance_markup
     iptables: https://github.com/simp/pupmod-simp-iptables
     pam: https://github.com/simp/pupmod-simp-pam
     oddjob: https://github.com/simp/pupmod-simp-oddjob
     simplib: https://github.com/simp/pupmod-simp-simplib
-#      repo: https://github.com/m-morrone/pupmod-simp-simplib
-#      branch: SIMP-6366
     sshkeys_core:
       repo: https://github.com/simp/pupmod-puppetlabs-sshkeys_core.git
       puppet_version: ">= 6.0.0"

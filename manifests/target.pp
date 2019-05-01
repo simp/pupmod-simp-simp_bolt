@@ -1,22 +1,35 @@
 # @summary Configure a system to be managed by Puppet Bolt
 #
+# @param create_user
+#   Create the user on the target system
+#
 # @param user_name
 #   The username to use for remote access
 #
+#   * Has no effect if ``$create_user`` is ``false``
+#
 # @param disallowed_users
-#   Users that may not be used for the ``bolt`` user
+#   Users that may not be used for the remote ``bolt`` login user
 #
 # @param user_password
 #   The password for the user in passwd-compatible salted hash form
 #
+#   * Has no effect if ``$create_user`` is ``false``
+#
 # @param user_home
 #   The full path to the user's home directory
+#
+#   * Has no effect if ``$create_user`` is ``false``
 #
 # @param user_uid
 #   The UID of the user
 #
+#   * Has no effect if ``$create_user`` is ``false``
+#
 # @param user_gid
 #   The GID of the user
+#
+#   * Has no effect if ``$create_user`` is ``false``
 #
 # @param user_ssh_authorized_keys
 #   The SSH public key for authorized Bolt users
@@ -31,6 +44,9 @@
 # @param user_sudo_user
 #   The user that the ``username`` user may escalate to
 #
+#   If set to ``undef``, will not manage sudo settings on the target system for
+#   this user.
+#
 # @param user_sudo_password_required
 #   Require password for user to sudo
 #
@@ -43,41 +59,43 @@
 #   from
 #
 #   * Set to ``['ALL']`` to allow from any location
+#   * If empty, will disable the use of pam_access for this user
 #
 # @param user_max_logins
 #   The ``pam_limits`` restricting the number of concurrent sessions permitted for
 #   ``username``
 #
+#   If set to ``undef``, will not restrict the maximum number of logins for the
+#   user
+#
 class simp_bolt::target (
-  Boolean                    $enable_user                  = false,
-  String                     $user_name                    = 'simp_bolt',
+  Boolean                    $create_user                  = true,
+  String[1]                  $user_name                    = 'simp_bolt',
   Array[String[1]]           $disallowed_users             = ['root'],
   Optional[String[8]]        $user_password                = undef,
   Stdlib::Unixpath           $user_home                    = "/var/local/${user_name}",
-  Integer                    $user_uid                     = 1779,
-  Integer                    $user_gid                     = $user_uid,
+  Integer[500]               $user_uid                     = 1779,
+  Integer[500]               $user_gid                     = $user_uid,
   Optional[Array[String[1]]] $user_ssh_authorized_keys     = undef,
   String[1]                  $user_ssh_authorized_key_type = 'ssh-rsa',
-  String                     $user_sudo_user               = 'root',
+  Optional[String[1]]        $user_sudo_user               = 'root',
   Boolean                    $user_sudo_password_required  = false,
-  Array[String]              $user_sudo_commands           = ['ALL'],
-  Array[String]              $user_allowed_from            = [pick(fact('puppet_server'), '127.0.0.1')],
-  Integer                    $user_max_logins              = 1
+  Array[String[1],1]         $user_sudo_commands           = ['ALL'],
+  Array[String[1]]           $user_allowed_from            = [pick(fact('puppet_server'), 'LOCAL')],
+  Optional[Integer[1]]       $user_max_logins              = 2
 ) {
   assert_private()
-
-  if $enable_user{
-    unless ($user_password or $user_ssh_authorized_keys) {
-      fail("You must specify either 'simp_bolt::target::user_password' or 'simp_bolt::target::user_ssh_authorized_keys'")
-    }
-  }
 
   if $user_name in $disallowed_users {
     $_err_str = join($disallowed_users, "', '")
     fail("Due to security ramificaitons, '\$user_name' cannot be one of '${_err_str}'")
   }
 
-  if $simp_bolt::bolt_target{
-    include 'simp_bolt::target::user'
+  if $create_user{
+    unless ($user_password or $user_ssh_authorized_keys) {
+      fail("You must specify either 'simp_bolt::target::user_password' or 'simp_bolt::target::user_ssh_authorized_keys'")
+    }
   }
+
+  include 'simp_bolt::target::user'
 }

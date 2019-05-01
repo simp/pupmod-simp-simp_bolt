@@ -1,6 +1,9 @@
 # NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 #
-# @summary Configure a 'simp_bolt' system user
+# @summary Configure a 'simp_bolt' system user and login capabilities
+#
+# @param create
+#   Create the user on the target system
 #
 # @param username
 #   The username to use for remote access
@@ -48,30 +51,30 @@
 #   ``username``
 #
 class simp_bolt::target::user (
-  Boolean                    $enable                  = $simp_bolt::target::enable_user,
+  Boolean                    $create                  = $simp_bolt::target::create_user,
   String                     $username                = $simp_bolt::target::user_name,
-  Boolean                    $manage                  = $simp_bolt::target::manage_user_security,
   Optional[String[8]]        $password                = $simp_bolt::target::user_password,
   Stdlib::Unixpath           $home                    = $simp_bolt::target::user_home,
   Integer                    $uid                     = $simp_bolt::target::user_uid,
   Integer                    $gid                     = $simp_bolt::target::user_gid,
   Optional[Array[String[1]]] $ssh_authorized_keys     = $simp_bolt::target::user_ssh_authorized_keys,
   String[1]                  $ssh_authorized_key_type = $simp_bolt::target::user_ssh_authorized_key_type,
-  String                     $sudo_user               = $simp_bolt::target::user_sudo_user,
+  Optional[String[1]]        $sudo_user               = $simp_bolt::target::user_sudo_user,
   Boolean                    $sudo_password_required  = $simp_bolt::target::user_sudo_password_required,
-  Array[String]              $sudo_commands           = $simp_bolt::target::user_sudo_commands,
-  Array[String]              $allowed_from            = $simp_bolt::target::user_allowed_from,
-  Integer                    $max_logins              = $simp_bolt::target::user_max_logins
+  Array[String[1]]           $sudo_commands           = $simp_bolt::target::user_sudo_commands,
+  Array[String[1]]           $allowed_from            = $simp_bolt::target::user_allowed_from,
+  Optional[Integer[1]]       $max_logins              = $simp_bolt::target::user_max_logins
 ) {
   assert_private()
 
-  $_ensure = $enable ? {
+  $_ensure = $create ? {
     true    => 'present',
     default => 'absent'
   }
 
-  if $enable {
+  if $create {
     file { $home:
+      ensure  => 'directory',
       owner   => $username,
       group   => $username,
       mode    => '0640',
@@ -93,37 +96,48 @@ class simp_bolt::target::user (
       managehome     => true,
       purge_ssh_keys => true
     }
+  }
+  else {
+    exec { "Create ${home}":
+      command => "mkdir -p ${home}",
+      path    => ['/bin/','/usr/bin'],
+      umask   => 022,
+      unless  => "test -d ${home}"
+    }
+  }
+
+  if $ssh_authorized_keys {
+    if $facts['simplib__sshd_config']['AuthorizedKeysFile'] !~ '^/' {
+      $_ssh_authorizedkeysfile = "${home}/${facts['simplib__sshd_config']['AuthorizedKeysFile']}"
+    }
+    else {
+      $_ssh_authorizedkeysfile = regsubst($facts['simplib__sshd_config']['AuthorizedKeysFile'], '%u', $username, 'G')
+    }
+
+    file { $_ssh_authorizedkeysfile:
+      seltype => 'sshd_key_t'
+    }
 
     $ssh_authorized_keys.each |Integer $index, String $key| {
-      ssh_authorized_key { "user${index}":
+      ssh_authorized_key { "${username}${index}":
         ensure => $_ensure,
         key    => $key,
         type   => $ssh_authorized_key_type,
-        user   => $username
-      }
-    }
-
-    # Set selinux context of ssh authorized_key file
-    if $ssh_authorized_keys {
-      if $facts['simplib__sshd_config']['AuthorizedKeysFile'] !~ '^/' {
-        $_ssh_authorizedkeysfile = "${home}/${facts['simplib__sshd_config']['AuthorizedKeysFile']}"
-      } else {
-        $_ssh_authorizedkeysfile = regsubst($facts['simplib__sshd_config']['AuthorizedKeysFile'], '%u', $username, 'G')
-      }
-      file { $_ssh_authorizedkeysfile:
-        seltype => 'sshd_key_t'
+        user   => $username,
+        target => $_ssh_authorizedkeysfile
       }
     }
   }
 
-  if $manage {
+  unless empty($allowed_from) {
     simplib::assert_optional_dependency($module_name, 'simp/pam')
 
     # Restrict login for user ssh to only specified Bolt servers
     # If system is also a Bolt server, allow login from localhost
     if $simp_bolt::bolt_controller {
       $_allowed_from = ['LOCAL'] + $allowed_from
-    } else {
+    }
+    else {
       $_allowed_from = $allowed_from
     }
     pam::access::rule { "allow_${username}":
@@ -131,13 +145,18 @@ class simp_bolt::target::user (
       origins => $_allowed_from,
       comment => 'SIMP BOLT user, restricted to remote access from specified BOLT systems'
     }
+  }
 
-    # Include an extra login session on the server to allow for running Bolt on
-    # itself
+  if $max_logins {
+    simplib::assert_optional_dependency($module_name, 'simp/pam')
 
     if $simp_bolt::bolt_controller {
+      # Include an extra login session on the server to allow for running Bolt
+      # on itself
+
       $_max_logins = $max_logins + 1
-    } else {
+    }
+    else {
       $_max_logins = $max_logins
     }
     pam::limits::rule { "limit_${username}":
@@ -146,7 +165,9 @@ class simp_bolt::target::user (
       item    => 'maxlogins',
       value   => $_max_logins
     }
+  }
 
+  if $sudo_user {
     simplib::assert_optional_dependency($module_name, 'simp/sudo')
 
     sudo::user_specification { $username:

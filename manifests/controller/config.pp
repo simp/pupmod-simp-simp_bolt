@@ -5,10 +5,6 @@
 # Addtional details on the options can be found at
 # https://puppet.com/docs/bolt/latest/bolt_configuration_options.html.
 #
-# @param local_user
-#   The local account to be used for running Bolt. The default is the $username account specified
-#   in the user.pp manifest.
-#
 # @param local_group
 #   The local group to be used for file permissions associated with the local_user account. The
 #   default is the $username account specified in the user.pp manifest.
@@ -17,11 +13,15 @@
 #   The home directory of the local account to be used for running Bolt. The default is the
 #   $home directory for the account specified in the user.pp manifest.
 #
-# @param modulepath
-#   The module path for loading tasks and plan code, formatted as a string containing a list
-#   of directories. The first directory listed will be the default for downloaded modules.
-#   By default, in Bolt, this is "modules:site-modules:site" within the Bolt project directory
-#   in `~/.puppetlabs/bolt`.
+# @param local_user
+#   The local account to be used for running Bolt. The default is the $username account specified
+#   in the user.pp manifest.
+#
+# @param config_hash
+#   If specified, will be passed to the ``to_yaml`` function and output at the
+#   entire configuation of the ``bolt.yaml`` configuation file.
+#
+#   * No further options will be honored if this is specified
 #
 # @param color
 #   Whether to use colored output when printing messages to the console. By default, in Bolt,
@@ -30,6 +30,12 @@
 # @param concurrency
 #   The number of threads to use when executing on remote nodes. By default, in Bolt, this
 #   is 100.
+#
+# @param default_transport
+#   The default transport to use when not specified in the URL or inventory.
+#
+# @param disable_analytics
+#   Disable all vendor 'phone-home' mechanics in Bolt.
 #
 # @param format
 #   The format to use when printing results; either human or json. By default, in Bolt, this
@@ -43,37 +49,6 @@
 #   Path to a structured data inventory file used to refer to groups of nodes on the command
 #   line and from plans. By default, in Bolt, this is `inventory.yaml` in the Bolt project
 #   directory at `~/.puppetlabs/bolt`.
-#
-# @param transport
-#   The default transport to use when not specified in the URL or inventory. Valid options
-#   for transport are docker, local, pcp, ssh, and winrm. By default in Bolt this is ssh.
-#
-# @param ssh_host_key_check
-#   Whether to perform host key validation when connecting over SSH. By default in Bolt this
-#   is true.
-#
-# @param ssh_password
-#   Login password for the remote system. Saving the password in plaintext is not recommended.
-#
-# @param ssh_port
-#   Connection port. By default in Bolt this is 22.
-#
-# @param ssh_private_key
-#   The path to the private key file to use for SSH authentication.
-#
-# @param ssh_proxyjump
-#   A jump host to proxy SSH connections through.
-#
-# @param ssh_tmpdir
-#   The directory to upload and execute temporarty files on the target system. The default
-#   is /var/local.
-#
-# @param ssh_user
-#   The account, used by Bolt, on the remote system. The default is the $username account
-#   specified in the user.pp manifest.
-#
-# @param ssh_run_as
-#   A different user to run commands as after login.
 #
 # @param log_console_level
 #   The type of information to display on the console. Valid options are debug, info, notice,
@@ -89,134 +64,142 @@
 # @param log_file_append
 #   Add output to an existing log file. By default in Bolt this is true.
 #
-# @param disable_analytics
-#   A different user to run commands as after login.
+# @param modulepath
+#   The module path for loading tasks and plan code, formatted as a string containing a list
+#   of directories. The first directory listed will be the default for downloaded modules.
+#   By default, in Bolt, this is "modules:site-modules:site" within the Bolt project directory
+#   in `~/.puppetlabs/bolt`.
+#
+# @params transport_options
+#   A Hash of transport options that will be added to the configuration file
+#   without any error checking of key/value pairs.
+#
+#   You must have settings specified for the ``$default_transport``
 #
 class simp_bolt::controller::config (
-  Optional[String]                                     $local_user         = $simp_bolt::controller::local_user_name,
-  Optional[String]                                     $local_group        = $simp_bolt::controller::local_group_name,
-  Optional[Stdlib::Unixpath]                           $local_home         = $simp_bolt::controller::local_user_home,
-  Optional[String]                                     $modulepath         = undef,
-  Optional[Boolean]                                    $color              = undef,
-  Optional[Integer[0]]                                 $concurrency        = undef,
-  Optional[Enum['human','json']]                       $format             = undef,
-  Optional[String]                                     $hiera_config       = undef,
-  Optional[String]                                     $inventoryfile      = undef,
-  Optional[Enum['docker','local','pcp','ssh','winrm']] $transport          = undef,
-  Optional[Boolean]                                    $ssh_host_key_check = undef,
-  Optional[String]                                     $ssh_password       = undef,
-  Optional[Integer[0]]                                 $ssh_port           = undef,
-  Optional[String]                                     $ssh_private_key    = undef,
-  Optional[String]                                     $ssh_proxyjump      = undef,
-  String                                               $ssh_tmpdir         = $simp_bolt::target::user_home,
-  String                                               $ssh_user           = $simp_bolt::target::user_name,
-  String                                               $ssh_run_as         = $simp_bolt::target::user_sudo_user,
-  Enum['debug', 'info', 'notice', 'warn', 'error']     $log_console_level  = 'info',
-  String                                               $log_file           = '/var/log/puppetlabs/bolt/bolt.log',
-  Enum['debug', 'info', 'notice', 'warn', 'error']     $log_file_level     = 'info',
-  Optional[Boolean]                                    $log_file_append    = undef,
-  Boolean                                              $disable_analytics  = true,
+  # Local Target Directory Options
+  Optional[String[1]]              $local_group        = $simp_bolt::controller::local_group_name,
+  Stdlib::Unixpath                 $local_home         = pick($simp_bolt::controller::local_user_home, '/var/local/simp_bolt'),
+  Optional[String[1]]              $local_user         = $simp_bolt::controller::local_user_name,
+
+  # Config File Specification
+  Optional[Hash]                   $config_hash        = undef,
+
+  # Global Bolt Options
+  Boolean                          $color              = true,
+  Optional[Integer[0]]             $concurrency        = undef,
+  Simp_bolt::Transport             $default_transport  = 'ssh',
+  Boolean                          $disable_analytics  = true,
+  Optional[Enum['human','json']]   $format             = undef,
+  Optional[String[1]]              $hiera_config       = undef,
+  Optional[String[1]]              $inventoryfile      = undef,
+  Simp_bolt::LogLevel              $log_console_level  = 'info',
+  Boolean                          $log_file_append    = false,
+  Simp_bolt::LogLevel              $log_file_level     = 'info',
+  Stdlib::Unixpath                 $log_file           = '/var/log/puppetlabs/bolt/bolt.log',
+  Optional[String[1]]              $modulepath         = undef,
+
+  # Overall Transport Options
+  Hash[Simp_bolt::Transport, Hash] $transport_options  = {
+                                     'ssh' => {
+                                       'tmpdir' => '/var/local/bolt_user',
+                                       'user'   => 'bolt_user',
+                                       'run-as' => 'root'
+                                     }
+                                   }
 ){
   assert_private()
 
-  # If local user and home directory are specified create the Boltdir and its parent directory
-  if $local_user and $local_home {
-    exec { "mkdir -p ${local_home}":
-      path   => ['/bin','/usr/bin'],
-      onlyif => "test ! -d ${local_home}"
-    }
+  unless $transport_options[$default_transport] {
+    fail("You must specify transport options for '${default_transport}' in '\$transport_options'")
+  }
 
-    $_bolt_dir_parent = "${local_home}/.puppetlabs"
-    $_bolt_dir = "${local_home}/.puppetlabs/bolt"
+  if $local_user {
+    $_local_user = $local_user
+    $_local_group = $local_group
+    $_puppet_dir = "${local_home}/.puppetlabs"
+    $_bolt_dir_mode = '0640'
+    $_create_log_dir = true
+  }
+  else {
+    $_local_user = 'root'
+    $_local_group = 'root'
+    $_puppet_dir = "${local_home}/puppetlabs"
+    $_bolt_dir_mode = '0644'
+    $_create_log_dir = false
+  }
 
-    file { $_bolt_dir_parent:
-      ensure => 'directory',
-      owner  => $local_user,
-      group  => $local_group,
-      mode   => '0750'
-    }
+  $_bolt_dir = "${_puppet_dir}/bolt"
 
-    file { $_bolt_dir:
-      ensure => 'directory',
-      owner  => $local_user,
-      group  => $local_group,
-      mode   => '0750'
-    }
+  exec { 'Create Local Bolt Home':
+    command => "mkdir -p ${local_home}",
+    path    => ['/bin','/usr/bin'],
+    umask   => '022',
+    unless  => "test -d ${local_home}"
+  }
 
-    # Create the config file for bolt
-    file { "${_bolt_dir}/bolt.yaml":
-      ensure  => 'file',
-      owner   => $local_user,
-      group   => $local_group,
-      mode    => '0640',
-      content => template("${module_name}/bolt_yaml.erb")
-    }
-  } else {
+  file { $_puppet_dir:
+    ensure  => 'directory',
+    owner   => $_local_user,
+    group   => $_local_group,
+    require => Exec['Create Local Bolt Home']
+  }
 
-    # If local user is not specified, create a sample Boltdir but make root the owner
-    # If local home is not specified, create a sample Boltdir at /user/local/simb_bolt and make root the owner
-    if $local_home {
-      $_local_home = $local_home
-    } else {
-      $_local_home = '/var/local/simp_bolt'
-    }
-
-    file { $_local_home:
-      ensure => 'directory',
-      owner  => 'root',
-      group  => 'root',
-      mode   => '0755'
-    }
-
-    $_bolt_dir_parent = "${_local_home}/puppetlabs"
-    $_bolt_dir = "${_local_home}/puppetlabs/bolt"
-
-    file { $_bolt_dir_parent:
-      ensure => 'directory',
-      owner  => 'root',
-      group  => 'root',
-      mode   => '0755'
-    }
-
-    file { $_bolt_dir:
-      ensure => 'directory',
-      owner  => 'root',
-      group  => 'root',
-      mode   => '0755'
-    }
+  file { $_bolt_dir:
+    ensure  => 'directory',
+    owner   => $_local_user,
+    group   => $_local_group,
+    mode    => $_bolt_dir_mode
+  }
 
   # Create the config file for bolt
-    file { "${_bolt_dir}/bolt.yaml":
-      ensure  => 'file',
-      owner   => 'root',
-      group   => 'root',
-      mode    => '0644',
-      content => template("${module_name}/bolt_yaml.erb")
-    }
+  file { "${_bolt_dir}/bolt.yaml":
+    ensure  => 'file',
+    owner   => $_local_user,
+    group   => $_local_group,
+    mode    => $_bolt_dir_mode,
+    content => epp("${module_name}/bolt_yaml.epp", {
+        config_hash       => $config_hash,
+        color             => $color,
+        concurrency       => $concurrency,
+        default_transport => $default_transport,
+        format            => $format,
+        hiera_config      => $hiera_config,
+        inventoryfile     => $inventoryfile,
+        log_console_level => $log_console_level,
+        log_file_append   => $log_file_append,
+        log_file_level    => $log_file_level,
+        log_file          => $log_file,
+        modulepath        => $modulepath,
+        transport_options => $transport_options
+      }
+    )
   }
 
   # Ensure the directory for the log files exists
-  $log_dir = dirname($log_file)
-  exec { "mkdir -p ${log_dir}":
-    path   => ['/bin','/usr/bin'],
-    onlyif => "test ! -d ${log_dir}"
+  $_log_dir = dirname($log_file)
+  exec { 'Create Bolt Log Dir':
+    command => "mkdir -p ${_log_dir}",
+    path    => ['/bin','/usr/bin'],
+    umask   => '022',
+    unless  => "test -d ${_log_dir}"
   }
 
-  # Set permissions on the directory for the log files
-  file { $log_dir:
-    ensure => 'directory',
-    owner  => $local_user,
-    group  => $local_group,
-    mode   => '0750'
+  if $_create_log_dir {
+    file { $_log_dir:
+      ensure => 'directory',
+      owner  => $_local_user,
+      group  => $_local_group,
+      mode   => $_bolt_dir_mode
+    }
   }
-
 
   # Create the config file for analytics
   file { "${_bolt_dir}/analytics.yaml":
-    ensure => present,
-    owner  => $local_user,
-    group  => $local_group,
-    mode   => '0750'
+    ensure => 'file',
+    owner  => $_local_user,
+    group  => $_local_group,
+    mode   => $_bolt_dir_mode
   }
 
   # Ensure analytics are correctly enabled or disabled
