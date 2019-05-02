@@ -101,16 +101,16 @@ class simp_bolt::controller::config (
 
   # Overall Transport Options
   Hash[Simp_bolt::Transport, Hash] $transport_options  = {
-                                     'ssh' => {
-                                       'tmpdir' => '/var/local/bolt_user',
-                                       'user'   => 'bolt_user',
-                                       'run-as' => 'root'
-                                     }
-                                   }
+                                                            'ssh' => {
+                                                              'tmpdir' => $simp_bolt::target_user_home,
+                                                              'user'   => $simp_bolt::target_user_name,
+                                                              'run-as' => $simp_bolt::target_sudo_user
+                                                            }.delete_undef_values
+                                                          }
 ){
   assert_private()
 
-  unless $transport_options[$default_transport] {
+  unless $transport_options[$default_transport] or $config_hash {
     fail("You must specify transport options for '${default_transport}' in '\$transport_options'")
   }
 
@@ -142,14 +142,15 @@ class simp_bolt::controller::config (
     ensure  => 'directory',
     owner   => $_local_user,
     group   => $_local_group,
+    mode    => $_bolt_dir_mode,
     require => Exec['Create Local Bolt Home']
   }
 
   file { $_bolt_dir:
-    ensure  => 'directory',
-    owner   => $_local_user,
-    group   => $_local_group,
-    mode    => $_bolt_dir_mode
+    ensure => 'directory',
+    owner  => $_local_user,
+    group  => $_local_group,
+    mode   => $_bolt_dir_mode
   }
 
   # Create the config file for bolt

@@ -114,10 +114,6 @@ class simp_bolt::target::user (
       $_ssh_authorizedkeysfile = regsubst($facts['simplib__sshd_config']['AuthorizedKeysFile'], '%u', $username, 'G')
     }
 
-    file { $_ssh_authorizedkeysfile:
-      seltype => 'sshd_key_t'
-    }
-
     $ssh_authorized_keys.each |Integer $index, String $key| {
       ssh_authorized_key { "${username}${index}":
         ensure => $_ensure,
@@ -126,6 +122,10 @@ class simp_bolt::target::user (
         user   => $username,
         target => $_ssh_authorizedkeysfile
       }
+    }
+
+    file { $_ssh_authorizedkeysfile:
+      seltype => 'sshd_key_t'
     }
   }
 

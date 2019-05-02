@@ -12,7 +12,7 @@ HOSTS:
       - boltserver
       - target
     platform:   el-7-x86_64
-    box:        onxypoint/oel-7-x86_64
+    box:        onyxpoint/oel-7-x86_64
     hypervisor: <%= hypervisor %>
     yum_repos:
       epel:
@@ -24,7 +24,7 @@ HOSTS:
     roles:
       - target
     platform:   el-7-x86_64
-    box:        onxypoint/oel-7-x86_64
+    box:        onyxpoint/oel-7-x86_64
     hypervisor: <%= hypervisor %>
     yum_repos:
       epel:
@@ -37,7 +37,7 @@ HOSTS:
       - boltserver
       - target
     platform:   el-6-x86_64
-    box:        onxypoint/oel-6-x86_64
+    box:        onyxpoint/oel-6-x86_64
     hypervisor: <%= hypervisor %>
     yum_repos:
       epel:
@@ -49,7 +49,7 @@ HOSTS:
     roles:
       - target
     platform:   el-6-x86_64
-    box:        onxypoint/oel-6-x86_64
+    box:        onyxpoint/oel-6-x86_64
     hypervisor: <%= hypervisor %>
     yum_repos:
       epel:

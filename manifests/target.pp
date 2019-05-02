@@ -70,15 +70,15 @@
 #
 class simp_bolt::target (
   Boolean                    $create_user                  = true,
-  String[1]                  $user_name                    = 'simp_bolt',
+  String[1]                  $user_name                    = $simp_bolt::target_user_name,
   Array[String[1]]           $disallowed_users             = ['root'],
   Optional[String[8]]        $user_password                = undef,
-  Stdlib::Unixpath           $user_home                    = "/var/local/${user_name}",
+  Stdlib::Unixpath           $user_home                    = $simp_bolt::target_user_home,
   Integer[500]               $user_uid                     = 1779,
   Integer[500]               $user_gid                     = $user_uid,
   Optional[Array[String[1]]] $user_ssh_authorized_keys     = undef,
   String[1]                  $user_ssh_authorized_key_type = 'ssh-rsa',
-  Optional[String[1]]        $user_sudo_user               = 'root',
+  Optional[String[1]]        $user_sudo_user               = $simp_bolt::target_sudo_user,
   Boolean                    $user_sudo_password_required  = false,
   Array[String[1],1]         $user_sudo_commands           = ['ALL'],
   Array[String[1]]           $user_allowed_from            = [pick(fact('puppet_server'), 'LOCAL')],
