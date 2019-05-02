@@ -1,0 +1,3 @@
+* Fri Apr 19 2019 Michael Morrone  <michael.morrone@onyxpoint.com> - 0.1.0
+- Initial commit.
+- Install and configure Puppet Bolt.
