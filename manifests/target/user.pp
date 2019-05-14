@@ -101,7 +101,7 @@ class simp_bolt::target::user (
     exec { "Create ${home}":
       command => "mkdir -p ${home}",
       path    => ['/bin/','/usr/bin'],
-      umask   => 022,
+      umask   => '022',
       unless  => "test -d ${home}"
     }
   }

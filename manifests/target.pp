@@ -88,14 +88,14 @@ class simp_bolt::target (
 
   if $user_name in $disallowed_users {
     $_err_str = join($disallowed_users, "', '")
-    fail("Due to security ramificaitons, '\$user_name' cannot be one of '${_err_str}'")
+    fail("Due to security ramifications, '\$user_name' cannot be one of '${_err_str}'")
   }
 
   if $create_user{
     unless ($user_password or $user_ssh_authorized_keys) {
       fail("You must specify either 'simp_bolt::target::user_password' or 'simp_bolt::target::user_ssh_authorized_keys'")
     }
+    include 'simp_bolt::target::user'
   }
 
-  include 'simp_bolt::target::user'
 }
