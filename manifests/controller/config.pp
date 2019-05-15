@@ -78,9 +78,9 @@
 #
 class simp_bolt::controller::config (
   # Local Target Directory Options
-  Optional[String[1]]              $local_group        = $simp_bolt::controller::local_group_name,
-  Stdlib::Unixpath                 $local_home         = pick($simp_bolt::controller::local_user_home, '/var/local/simp_bolt'),
-  Optional[String[1]]              $local_user         = $simp_bolt::controller::local_user_name,
+  Optional[String[1]]              $local_user         = getvar(simp_bolt::controller::local_user_name),
+  Optional[String[1]]              $local_group        = getvar(simp_bolt::controller::local_group_name),
+  Stdlib::Unixpath                 $local_home         = pick(getvar(simp_bolt::controller::local_user_home), '/var/local/simp_bolt'),
 
   # Config File Specification
   Optional[Hash]                   $config_hash        = undef,
@@ -104,7 +104,7 @@ class simp_bolt::controller::config (
                                                             'ssh' => {
                                                               'tmpdir' => $simp_bolt::target_user_home,
                                                               'user'   => $simp_bolt::target_user_name,
-                                                              'run-as' => $simp_bolt::target_sudo_user
+                                                              'run-as' => getvar(simp_bolt::target_sudo_user)
                                                             }.delete_undef_values
                                                           }
 ){
