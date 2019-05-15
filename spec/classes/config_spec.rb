@@ -5,7 +5,6 @@ describe 'simp_bolt::controller::config' do
   shared_examples_for "a structured module" do
     it { is_expected.to compile.with_all_deps }
     it { is_expected.to create_class('simp_bolt::controller::config') }
-
   end
 
   context 'supported operating systems' do
