@@ -1,5 +1,5 @@
 <%-|
-  Optional[String]  $config_hash,
+  Optional[Hash]    $config_hash,
   Boolean           $color,
   Optional[Integer] $concurrency,
   String            $default_transport,

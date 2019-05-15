@@ -14,7 +14,6 @@ describe 'simp_bolt::target::user' do
     it { is_expected.to create_pam__access__rule('allow_simp_bolt') } 
   end
 
-
   context 'supported operating systems' do
     on_supported_os.each do |os, os_facts|
       context "on #{os}" do
@@ -27,8 +26,6 @@ describe 'simp_bolt::target::user' do
         let(:facts) do
           os_facts
         end
-
-#        let(:hieradata) { 'password' }
 
         # Requires variable set in init.pp, so including here
         let(:pre_condition) { 'include simp_bolt' }

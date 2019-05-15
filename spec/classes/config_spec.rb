@@ -24,16 +24,15 @@ describe 'simp_bolt::controller::config' do
         # Requires variable set in init.pp, so including here
         let(:pre_condition) { 'include simp_bolt' }
 
-#        context 'with no transport options or config hash' do
-#          let(:params) {{
-#            :transport_options => :undef
-#          }}
-#          it "is expected to fail" do
-#            expect { catalogue }.to raise_error Puppet::PreformattedError, /You must specify transport options/
-#          end
-#        end
+        context 'with no transport options or config hash' do
+          let(:params) {{ :default_transport => 'local' }}
+          it "is expected to fail" do
+            expect { catalogue }.to raise_error Puppet::PreformattedError, /You must specify transport options/
+          end
+        end
 
         context 'with default parameters' do
+          let(:params) {{ }}
           it_behaves_like "a structured module"
           it { is_expected.to contain_exec('Create Local Bolt Home').with_command('mkdir -p /var/local/simp_bolt') }
           it { is_expected.to create_file('/var/local/simp_bolt/puppetlabs') }
@@ -62,6 +61,31 @@ describe 'simp_bolt::controller::config' do
           it { is_expected.to create_file('/var/log/puppetlabs/bolt') }
         end
 
+        context 'with a config hash' do
+          let(:header){
+            <<-EOM
+# This file managed by puppet.
+# Any changes that you make will be reverted on the next puppet run.
+#
+# Bolt configuration file
+# https://puppet.com/docs/bolt/1.x/bolt_configuration_options.html
+            EOM
+          }
+
+          let(:params) {{
+            :config_hash       => {
+              'param1' => 'string',
+              'param2' => true,
+              'param3' => [ 'array thing' ],
+              'param4' => { 'hashy' => 'mchashface' }
+            },
+            :default_transport => 'local'
+          }}
+          it_behaves_like "a structured module"
+          it { is_expected.to create_file('/var/local/simp_bolt/puppetlabs/bolt/bolt.yaml').with_content(
+            header + params[:config_hash].to_yaml + "\n"
+          ) }
+        end
       end
     end
   end
