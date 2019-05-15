@@ -96,6 +96,21 @@ class simp_bolt::target::user (
       managehome     => true,
       purge_ssh_keys => true
     }
+
+    simplib::assert_optional_dependency($module_name, 'simp/pam')
+    # Restrict login for user ssh to only specified Bolt servers
+    # If system is also a Bolt server, allow login from localhost
+    if $simp_bolt::bolt_controller {
+      $_allowed_from = ['LOCAL'] + $allowed_from
+    }
+    else {
+      $_allowed_from = $allowed_from
+    }
+    pam::access::rule { "allow_${username}":
+      users   => [$username],
+      origins => $_allowed_from,
+      comment => 'SIMP BOLT user, restricted to remote access from specified BOLT systems'
+    }
   }
   else {
     exec { "Create ${home}":
@@ -126,24 +141,6 @@ class simp_bolt::target::user (
 
     file { $_ssh_authorizedkeysfile:
       seltype => 'sshd_key_t'
-    }
-  }
-
-  unless empty($allowed_from) {
-    simplib::assert_optional_dependency($module_name, 'simp/pam')
-
-    # Restrict login for user ssh to only specified Bolt servers
-    # If system is also a Bolt server, allow login from localhost
-    if $simp_bolt::bolt_controller {
-      $_allowed_from = ['LOCAL'] + $allowed_from
-    }
-    else {
-      $_allowed_from = $allowed_from
-    }
-    pam::access::rule { "allow_${username}":
-      users   => [$username],
-      origins => $_allowed_from,
-      comment => 'SIMP BOLT user, restricted to remote access from specified BOLT systems'
     }
   }
 
