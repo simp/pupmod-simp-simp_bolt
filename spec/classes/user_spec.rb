@@ -7,11 +7,11 @@ describe 'simp_bolt::target::user' do
     it { is_expected.to create_class('simp_bolt::target::user') }
   end
 
-  shared_examples_for "a simp_bolt user" do
+  shared_examples_for "create a simp_bolt user" do
     it { is_expected.to create_user('simp_bolt') }
     it { is_expected.to create_group('simp_bolt') }
     it { is_expected.to create_file('/var/local/simp_bolt') }
-    it { is_expected.to create_sudo__user_specification('simp_bolt') }
+#    it { is_expected.to create_sudo__user_specification('simp_bolt') }
   end
 
 
@@ -30,69 +30,121 @@ describe 'simp_bolt::target::user' do
 
 #        let(:hieradata) { 'password' }
 
-        # Set variables inherited from parent classes
-        let(:pre_condition) { [
-          "class{'simp_bolt':
-            bolt_controller => false
-          }",
-          "class{'simp_bolt::target':
-            create_user                  => false,
-#            user_name                    => 'simp_bolt',
-#            user_password                => undef,
-#            user_home                    => '/var/local/simp_bolt',
-#            user_uid                     => 1779,
-#            user_gid                     => 1779,
-#            user_ssh_authorized_keys     => undef,
-#            user_ssh_authorized_key_type => 'ssh-rsa',
-#            user_sudo_user               => 'root',
-#            user_sudo_password_required  => false,
-#            user_sudo_commands           => ['ALL'],
-#            user_allowed_from            => ['puppet_server'],
-#            user_max_logins              => 2
-          }"
-        ] }
+        # Requires variable set in init.pp, so including here
+        let(:pre_condition) { 'include simp_bolt' }
 
-        context 'with defaults' do
-          let(:facts) do
-            os_facts.merge({
-              'simplib__sshd_config' => {
-                'AuthorizedKeysFile' => '.ssh/authorized_keys'
-              }
-            })
+        # Set parameters inherited from variables in parent classes to default values
+        let(:params) {{
+          create                  => false,
+          username                => 'simp_bolt',
+          password                => undef,
+          home                    => '/var/local/simp_bolt',
+          uid                     => 1779,
+          gid                     => 1779,
+          ssh_authorized_keys     => undef,
+          ssh_authorized_key_type => 'ssh-rsa',
+          sudo_user               => 'root',
+          sudo_password_required  => false,
+          sudo_commands           => ['ALL'],
+          allowed_from            => ['puppet_server'],
+          max_logins              => 2
+        }}
+
+        let(:facts) do
+          os_facts.merge({
+            'simplib__sshd_config' => {
+              'AuthorizedKeysFile' => '.ssh/authorized_keys'
+            }
+          })
+        end
+
+        context 'with create false' do
+          context 'and default parameters password' do
+            it_behaves_like "a structured module"
+            it { is_expected.not_to create_user('simp_bolt') }
+            it { is_expected.not_to create_group('simp_bolt') }
+            it { is_expected.not_to create_file('/var/local/simp_bolt') }
+            it { is_expected.to contain_exec('Create /var/local/simp_bolt').with_command('mkdir -p /var/local/simp_bolt') }
+            it { is_expected.to create_pam__access__rule('allow_simp_bolt') } 
+            it { is_expected.to create_pam__limits__rule('limit_simp_bolt') } 
+            it { is_expected.to create_sudo__user_specification('simp_bolt') } 
           end
+
           context 'and a password' do
-            let(:params) {{
-              :create   => true,
-              :password => 'password_hash',
-            }}
+            let(:params) { suer().merge(:password => 'password_hash') }
+            it_behaves_like "a structured module"
+            it { is_expected.not_to create_user('simp_bolt') }
+            it { is_expected.not_to create_group('simp_bolt') }
+            it { is_expected.not_to create_file('/var/local/simp_bolt') }
+            it { is_expected.to contain_exec('Create /var/local/simp_bolt').with_command('mkdir -p /var/local/simp_bolt') }
+          end
+
+          context 'with a ssh_authorized_key' do
+            let(:params) { super().merge(:ssh_authorized_keys => ['ssh_authorized_key']) }
+            it_behaves_like "a structured module"
+            it { is_expected.not_to create_user('simp_bolt') }
+            it { is_expected.not_to create_group('simp_bolt') }
+            it { is_expected.not_to create_file('/var/local/simp_bolt') }
+            it { is_expected.to contain_exec('Create /var/local/simp_bolt').with_command('mkdir -p /var/local/simp_bolt') }
+            it { is_expected.to create_ssh_authorized_key('simp_bolt0').with_key('ssh_authorized_key') }
+          end
+
+          context 'with allowed from multiple systems' do
+            let(:params) { super().merge(:allowed_from => ['system1','system2']) }
+            it_behaves_like "a structured module"
+            it { is_expected.to create_pam__access__rule('allow_simp_bolt') } 
+          end
+
+          context 'with no allowed from set' do
+            let(:params) { super().merge(:allowed_from => ['']) }
+            it_behaves_like "a structured module"
+            it { is_expected.not_to create_pam__access__rule('allow_simp_bolt') } 
+          end
+
+          context 'with no max logins' do
+            let(:params) { super().merge(:allowed_from => ['system1','system2']) }
+            it_behaves_like "a structured module"
+            it { is_expected.not_to create_pam__limits__rule('limit_simp_bolt') } 
+          end
+
+          context 'with no sudo user' do
+            let(:params) { super().merge(:sudo_user => undef) }
+            it_behaves_like "a structured module"
+            it { is_expected.to create_sudo__user_specification('simp_bolt') } 
+          end
+        end
+
+        context 'with create set to true' do
+          context 'and a password' do
+            let(:params) { suer().merge(:password => 'password_hash') }
             it_behaves_like "a structured module"
             it_behaves_like "a simp_bolt user"
           end
+
           context 'and a ssh_authorized_key' do
-            let(:params) {{
-              :create              => true,
-              :ssh_authorized_keys => ['ssh_authorized_key'],
-            }}
+            let(:params) { super().merge(:ssh_authorized_keys => ['ssh_authorized_key']) }
             it_behaves_like "a structured module"
             it_behaves_like "a simp_bolt user"
-            it { is_expected.to create_ssh_authorized_key} #(params[:username]).with_key(params[:user_ssh_authorized_keys]) }
+            it { is_expected.to create_ssh_authorized_key('simp_bolt0').with_key('ssh_authorized_key') }
           end
+
           context 'and multiple ssh_authorized_keys' do
-            let(:params) {{
-              :create              => true,
-              :ssh_authorized_keys => ['ssh','authorized','key']
-            }}
+            let(:params) { super().merge(:ssh_authorized_keys => ['ssh','authorized','key']) }
             it_behaves_like "a structured module"
             it_behaves_like "a simp_bolt user"
+            it { is_expected.to create_ssh_authorized_key('simp_bolt0').with_key('ssh') }
+            it { is_expected.to create_ssh_authorized_key('simp_bolt1').with_key('authorized') }
+            it { is_expected.to create_ssh_authorized_key('simp_bolt2').with_key('key') }
           end
+
           context 'and a password and a ssh_authorized_keys' do
-            let(:params) {{
-              :create              => true,
+            let(:params) { super().merge(
               :password            => 'password_hash',
               :ssh_authorized_keys => ['ssh_authorized_key']
-            }}
+            ) }
             it_behaves_like "a structured module"
             it_behaves_like "a simp_bolt user"
+            it { is_expected.to create_ssh_authorized_key('simp_bolt0').with_key('ssh_authorized_key') }
           end
 
         end

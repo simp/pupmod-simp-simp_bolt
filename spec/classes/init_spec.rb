@@ -16,7 +16,6 @@ describe 'simp_bolt' do
           :simplib__sshd_config => {'authorizedkeysfile' => '.ssh/authorized_keys'}
           })
         end
-        let(:hieradata) { 'password' }
 
         context "simp_bolt class without any parameters" do
           it_behaves_like "a structured module"

@@ -22,30 +22,12 @@ describe 'simp_bolt::target' do
         end
 
         # Target class invokes user.pp, which references variable set in init.pp, so including here
-        let(:pre_condition) {"class{'simp_bolt': bolt_controller => false}"}
-#        let(:pre_condition) { [
-#          "define simp_bolt { $bolt_controller = false }"
-#        ] }
-
-#        mock_init = MockResource.new 'simp_bolt', {
-#          :params => {
-#            :bolt_controller => true
-#          }
-#        }
-#        let(:pre_condition) { [
-#          mock_init.render
-#        ] }
-
-#        let(:pre_condition) do
-#          [ '$simp_bolt:bolt_controller = true' ]
-#        end
-#        Puppet::Parser::AST::VarDef.new (:name => :simp_bolt:bolt_controller, :value => true, :file => nil, :line => nil) {}
+        let(:pre_condition) { 'include simp_bolt' }
 
         context 'with a disallowed user specified' do
           let(:params) {{
-            :user_name      => 'root',
-            :user_home      => "/var/local/${user_name}",
-            :user_sudo_user => 'root'
+            :user_name => 'root',
+            :user_home => "/var/local/${user_name}",
           }}
           it "is expected to fail" do
             expect { catalogue }.to raise_error Puppet::PreformattedError, /Due to security ramifications,/
@@ -54,9 +36,9 @@ describe 'simp_bolt::target' do
 
         context 'with no password or ssh authorized keys' do
           let(:params) {{
-            :user_name      => 'simp_bolt',
-            :user_home      => "/var/local/${user_name}",
-            :user_sudo_user => 'root'
+            :create_user => true,
+            :user_name   => 'simp_bolt',
+            :user_home   => "/var/local/${user_name}",
           }}
           it "is expected to fail" do
             expect { catalogue }.to raise_error Puppet::PreformattedError, /You must specify either 'simp_bolt::target::user_password' or 'simp_bolt::target::user_ssh_authorized_keys'/
@@ -65,9 +47,9 @@ describe 'simp_bolt::target' do
 
         context 'with a password specified' do
           let(:params) {{
+            :create_user    => true,
             :user_name      => 'simp_bolt',
             :user_home      => "/var/local/${user_name}",
-            :user_sudo_user => 'root',
             :user_password  => 'password_hash',
           }}
           it_behaves_like "a structured module"
@@ -83,6 +65,7 @@ describe 'simp_bolt::target' do
           end
 
           let(:params) {{
+            :create_user              => true,
             :user_name                => 'simp_bolt',
             :user_home                => "/var/local/${user_name}",
             :user_sudo_user           => 'root',

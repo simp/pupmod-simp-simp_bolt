@@ -53,17 +53,17 @@
 class simp_bolt::target::user (
   Boolean                    $create                  = $simp_bolt::target::create_user,
   String                     $username                = $simp_bolt::target::user_name,
-  Optional[String[8]]        $password                = $simp_bolt::target::user_password,
+  Optional[String[8]]        $password                = getvar(simp_bolt::target::user_password),
   Stdlib::Unixpath           $home                    = $simp_bolt::target::user_home,
   Integer                    $uid                     = $simp_bolt::target::user_uid,
   Integer                    $gid                     = $simp_bolt::target::user_gid,
-  Optional[Array[String[1]]] $ssh_authorized_keys     = $simp_bolt::target::user_ssh_authorized_keys,
+  Optional[Array[String[1]]] $ssh_authorized_keys     = getvar(simp_bolt::target::user_ssh_authorized_keys),
   String[1]                  $ssh_authorized_key_type = $simp_bolt::target::user_ssh_authorized_key_type,
-  Optional[String[1]]        $sudo_user               = $simp_bolt::target::user_sudo_user,
+  Optional[String[1]]        $sudo_user               = getvar(simp_bolt::target::user_sudo_user),
   Boolean                    $sudo_password_required  = $simp_bolt::target::user_sudo_password_required,
   Array[String[1]]           $sudo_commands           = $simp_bolt::target::user_sudo_commands,
   Array[String[1]]           $allowed_from            = $simp_bolt::target::user_allowed_from,
-  Optional[Integer[1]]       $max_logins              = $simp_bolt::target::user_max_logins
+  Optional[Integer[1]]       $max_logins              = getvar(simp_bolt::target::user_max_logins)
 ) {
   assert_private()
 

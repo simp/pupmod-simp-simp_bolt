@@ -26,8 +26,7 @@ describe 'simp_bolt class' do
         <<-EOS
 ---
 simp_bolt::bolt_target: true
-simp_bolt::target::enable_user: true
-simp_bolt::target::manage_user_security: true
+simp_bolt::target::create_user: true
 simp_bolt::target::user_password: #{passwd}
 simp_bolt::target::user_allowed_from: #{allowed_from_fqdns}
 simp_bolt::target::user_ssh_authorized_keys: #{ssh_authorized_key}
@@ -53,9 +52,7 @@ simp_bolt::target::user_ssh_authorized_keys: #{ssh_authorized_key}
 ---
 simp_bolt::bolt_target: true
 simp_bolt::bolt_controller: true
-simp_bolt::target::enable_user: true
-simp_bolt::target::manage_user_security: true
-simp_bolt::target::user_max_logins: 2
+simp_bolt::target::create_user: true
 simp_bolt::target::user_allowed_from: #{allowed_from_fqdns}
 simp_bolt::target::user_password: #{passwd}
 simp_bolt::target::user_ssh_authorized_keys: #{ssh_authorized_key}

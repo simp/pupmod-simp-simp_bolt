@@ -69,7 +69,7 @@
 #   user
 #
 class simp_bolt::target (
-  Boolean                    $create_user                  = true,
+  Boolean                    $create_user                  = false,
   String[1]                  $user_name                    = $simp_bolt::target_user_name,
   Array[String[1]]           $disallowed_users             = ['root'],
   Optional[String[8]]        $user_password                = undef,
@@ -78,7 +78,7 @@ class simp_bolt::target (
   Integer[500]               $user_gid                     = $user_uid,
   Optional[Array[String[1]]] $user_ssh_authorized_keys     = undef,
   String[1]                  $user_ssh_authorized_key_type = 'ssh-rsa',
-  Optional[String[1]]        $user_sudo_user               = $simp_bolt::target_sudo_user,
+  Optional[String[1]]        $user_sudo_user               = getvar(simp_bolt::target_sudo_user),
   Boolean                    $user_sudo_password_required  = false,
   Array[String[1],1]         $user_sudo_commands           = ['ALL'],
   Array[String[1]]           $user_allowed_from            = [pick(fact('puppet_server'), 'LOCAL')],
@@ -95,7 +95,7 @@ class simp_bolt::target (
     unless ($user_password or $user_ssh_authorized_keys) {
       fail("You must specify either 'simp_bolt::target::user_password' or 'simp_bolt::target::user_ssh_authorized_keys'")
     }
-    include 'simp_bolt::target::user'
   }
 
+  include 'simp_bolt::target::user'
 }
