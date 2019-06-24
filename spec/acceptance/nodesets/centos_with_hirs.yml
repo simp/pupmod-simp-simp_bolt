@@ -20,7 +20,7 @@ HOSTS:
       epel:
         mirrorlist: 'https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch'
         gpgkeys:
-          - https://getfedora.org/static/352C64E5.txt
+          - https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-$releasever
       simpdeps:
         baseurl: https://packagecloud.io/simp-project/6_X_Dependencies/el/$releasever/$basearch
         gpgkeys:
@@ -42,7 +42,7 @@ HOSTS:
       epel:
         mirrorlist: 'https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch'
         gpgkeys:
-          - https://getfedora.org/static/352C64E5.txt
+          - https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-$releasever
       simpdeps:
         baseurl: https://packagecloud.io/simp-project/6_X_Dependencies/el/$releasever/$basearch
         gpgkeys:
@@ -63,7 +63,7 @@ HOSTS:
       epel:
         mirrorlist: 'https://mirrors.fedoraproject.org/metalink?repo=epel-6&arch=$basearch'
         gpgkeys:
-          - https://getfedora.org/static/0608B895.txt
+          - https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-$releasever
   el6-target:
     roles:
       - target
@@ -76,7 +76,7 @@ HOSTS:
       epel:
         mirrorlist: 'https://mirrors.fedoraproject.org/metalink?repo=epel-6&arch=$basearch'
         gpgkeys:
-          - https://getfedora.org/static/0608B895.txt
+          - https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-$releasever
       simpdeps:
         baseurl: https://packagecloud.io/simp-project/6_X_Dependencies/el/$releasever/$basearch
         gpgkeys:
@@ -96,7 +96,7 @@ HOSTS:
       epel:
         mirrorlist: 'https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch'
         gpgkeys:
-          - https://getfedora.org/static/352C64E5.txt
+          - https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-$releasever
       simpdeps:
         baseurl: https://packagecloud.io/simp-project/6_X_Dependencies/el/$releasever/$basearch
         gpgkeys:

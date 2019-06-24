@@ -6,33 +6,10 @@ defaults:
 
 hierarchy:
 
-  - name: Per-node data
+  - name: Common
     paths:
-    - "hosts/%{trusted.certname}.yaml"
-    - "hosts/%{facts.fqdn}.yaml"
-    - "hosts/%{facts.hostname}.yaml"
-
-  - name: Per-domain data
-    paths:
-    - "domains/%{facts.domain}.yaml"
-
-  - name: Per-OS data
-    paths:
-    - "%{facts.os.family}.yaml"
-    - "%{facts.os.name}/%{facts.os.release.full}.yaml"
-    - "%{facts.os.name}/%{facts.os.release.major}.yaml"
-    - "%{facts.os.name}.yaml"
-
-  - name: Per-hostgroup data - See site.pp for more information
-    paths:
-    - "hostgroups/%{::hostgroup}.yaml"
-
-  - name: General data
-    paths:
-    - "default.yaml"
     - "common.yaml"
 
-  - name: SIMP specific data - Please do not modify
-    paths:
-    - "simp_config_settings.yaml"
-    - "scenarios/%{::simp_scenario}.yaml"
+# See https://puppet.com/docs/puppet/latest/hiera_config_yaml_5.html and
+# https://simp.readthedocs.io/en/latest/user_guide/SIMP_Administration/Classification_and_Data.html#hiera-in-simp
+# for details on Hiera implementation.
