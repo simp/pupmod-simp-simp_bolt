@@ -1,0 +1,15 @@
+---
+version: 5
+defaults:
+  datadir: data
+  data_hash: yaml_data
+
+hierarchy:
+
+  - name: Common
+    paths:
+    - "common.yaml"
+
+# See https://puppet.com/docs/puppet/latest/hiera_config_yaml_5.html and
+# https://simp.readthedocs.io/en/latest/user_guide/SIMP_Administration/Classification_and_Data.html#hiera-in-simp
+# for details on Hiera implementation.
