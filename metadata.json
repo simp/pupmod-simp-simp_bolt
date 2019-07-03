@@ -1,6 +1,6 @@
 {
   "name": "simp-simp_bolt",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "SIMP Team",
   "summary": "A SIMP module to manage Puppetlabs Bolt",
   "license": "Apache-2.0",
@@ -18,7 +18,7 @@
     },
     {
       "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 4.25.1 < 6.0.0"
+      "version_requirement": ">= 4.25.1 < 7.0.0"
     }
   ],
   "simp": {
