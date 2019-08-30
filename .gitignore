@@ -15,4 +15,3 @@
 Gemfile.lock
 dist
 sec_results
-spec/acceptance/suites/default/nodesets
