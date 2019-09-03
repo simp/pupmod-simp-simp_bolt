@@ -11,6 +11,8 @@ HOSTS:
       - default
       - boltserver
       - target
+      - hirs
+      - tpm_1_2
     platform:   el-7-x86_64
     box:        centos/7
     hypervisor: <%= hypervisor %>
@@ -22,6 +24,8 @@ HOSTS:
   el7-target:
     roles:
       - target
+      - hirs
+      - tpm_2_0
     platform:   el-7-x86_64
     box:        centos/7
     hypervisor: <%= hypervisor %>
@@ -45,12 +49,25 @@ HOSTS:
   el6-target:
     roles:
       - target
+      - hirs
+      - tpm_1_2
     platform:   el-6-x86_64
     box:        centos/6
     hypervisor: <%= hypervisor %>
     yum_repos:
       epel:
         mirrorlist: 'https://mirrors.fedoraproject.org/metalink?repo=epel-6&arch=$basearch'
+        gpgkeys:
+          - https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-$releasever
+  aca:
+    roles:
+      - aca
+    platform:   el-7-x86_64
+    box:        centos/7
+    hypervisor: <%= hypervisor %>
+    yum_repos:
+      epel:
+        mirrorlist: 'https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch'
         gpgkeys:
           - https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-$releasever
 

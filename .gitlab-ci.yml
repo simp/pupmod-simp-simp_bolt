@@ -155,17 +155,19 @@ pup6-unit:
 
 # Acceptance tests
 # ==============================================================================
+# Not including the with_hirs suite because that is more indicative of the 
+# simp-hirs_provisioner module than simp-simp_bolt.
 pup5.5.10:
   <<: *pup_5_5_10
   <<: *acceptance_base
   script:
-    - 'bundle exec rake beaker:suites'
+    - 'bundle exec rake beaker:suites[default,default]'
 
 pup5.5.10-fips:
   <<: *pup_5_5_10
   <<: *acceptance_base
   script:
-    - 'BEAKER_fips=yes bundle exec rake beaker:suites'
+    - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,default]'
 
 pup5.5.10-oel-combined-x64:
   <<: *pup_5_5_10
@@ -184,10 +186,10 @@ pup6:
   <<: *pup_6
   <<: *acceptance_base
   script:
-    - 'bundle exec rake beaker:suites'
+    - 'bundle exec rake beaker:suites[default,default]'
 
 pup6-fips:
   <<: *pup_6
   <<: *acceptance_base
   script:
-    - 'BEAKER_fips=yes bundle exec rake beaker:suites'
+    - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,default]'

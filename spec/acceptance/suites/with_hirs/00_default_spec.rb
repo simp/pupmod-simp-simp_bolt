@@ -16,6 +16,13 @@ describe 'simp_bolt class' do
   }
   let(:passwd) {'$6$0BVLUFTByfXbi4$OkGTJrGMkhr44IUHpWKss94af63UoLH3qab9Oikzj6GnscLPV18oKEDIIb3lYDAEI7bw7nYeJKzWc16OtkdiY1'}
 
+  hosts.each do |host|
+    it 'should enable SIMP dependencies repo' do
+      # exclude SIMP repo, as we only want the SIMP deps repo
+      install_simp_repos(host, ['simp'])
+    end
+  end
+
   hosts_with_role( hosts, 'target' ).each do |host|
     context 'default parameters' do
       # Using puppet_apply as a helper

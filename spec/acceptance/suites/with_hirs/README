@@ -1,3 +1,3 @@
 This suite is intended to install Bolt then test Bolt by installing the
 hirs_provisioner module on target systems.  To run the tests, execute:
-``bundle exec rake beaker:suites[with_hirs,centos_with_hirs]``
+``bundle exec rake beaker:suites[with_hirs]``
