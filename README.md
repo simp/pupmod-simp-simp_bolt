@@ -14,6 +14,7 @@
   * [What simp_bolt affects](#what-simp_bolt-affects)
   * [Beginning with simp_bolt](#beginning-with-simp_bolt)
 * [Usage](#usage)
+  * [Within the SIMP Omni-Environment](#within-the-simp-omni-environment)
 * [Reference](#reference)
 * [Limitations](#limitations)
 * [Development](#development)
@@ -38,10 +39,10 @@ specified on both controllers and target systems to be managed with Bolt.
 
 Bolt is an open source task runner developed by Puppet that permits automation
 on an as-needed basis. This means that all actions are initiated from the Bolt
-server, eliminating reliance upon remote agent software for task execution.
+controller, eliminating reliance upon remote agent software for task execution.
 More complex tasks can be implemented using Puppet modules, which does require
 the installation of an agent for executions, but all tasks are still initiated
-from the Bolt server.
+from the Bolt controller.
 
 See [REFERENCE.md](REFERENCE.md) for more details.
 
@@ -108,6 +109,14 @@ system as a `bolt_controller` in Hiera.
 simp_bolt::bolt_controller: true
 ```
 
+To configure a Bolt controller to utilize a SIMP Omni-Environment, specify
+the name of the environment in Hiera.
+
+```yaml
+simp_bolt::simp_environment: true
+simp_bolt::simp_environment_name: bolt
+```
+
 To configure a system that will be managed by Bolt, simply `include simp_bolt`
 and specify the system as a ``bolt_target`` in Hiera.
 
@@ -128,7 +137,7 @@ simp_bolt::user::ssh_authorized_key: 'AAAAB3Nza[...]qXfdaQ=='
 
 Once the `simp_bolt` module has been applied to a server and one or more target
 systems, Bolt is ready for use. All commands provided assume you have changed
-users to the appropriate account using `su` on the Bolt server system.
+users to the appropriate account using `su` on the Bolt controller system.
 Entering the command `bolt` by itself will display the help information.
 
 To run a remote command, `su` to the bolt user and execute
@@ -149,6 +158,27 @@ simp_bolt::config::modulepath: /path/to/modules
 
 To apply an existing manifest, `su` to the bolt user and execute
 `bolt apply <manifest> --nodes <NODE NAME(S)> --password --sudo-password`.
+
+### Within the SIMP Omni-Environment
+
+If utilizing a SIMP Omni-Environment, change directories to the Puppet
+Environment directory, /etc/puppetlabs/code/environments/bolt, and execute
+Bolt commands there so the appropriate configuration files will be utilized.
+The environment can be created with the command `simpenv -n bolt` run as root.
+
+The Puppetfile and Puppetfile.simp behave the same as the traditional SIMP
+on a Puppet system. To install or update the modules as specified in the
+Puppetfile, simply execute 
+`bolt puppetfile install --boltdir /etc/puppetlabs/code/environments/bolt`.
+Specifying the boltdir is only necessary if a bolt.yaml file is not present
+or if the command is run from a different directory.
+
+To apply the SIMP environment to a target system, execute 
+`bolt apply manifests/site.pp --nodes <NODE NAME(S)> --password --sudo-password`
+from within the Puppet Environment directory. If the target system does not
+have the specified target user account configured, it will be necessary to also
+specify `--user username --run-as root` where username is an existing account
+on the target system with permissions to run sudo commands.
 
 ## Reference
 

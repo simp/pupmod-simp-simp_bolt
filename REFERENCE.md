@@ -12,6 +12,11 @@
 * [`simp_bolt::target`](#simp_bolttarget): Configure a system to be managed by Puppet Bolt
 * [`simp_bolt::target::user`](#simp_bolttargetuser): Configure a 'simp_bolt' system user and login capabilities
 
+**Data types**
+
+* [`Simp_bolt::LogLevel`](#simp_boltloglevel): Bolt Log Levels
+* [`Simp_bolt::Transport`](#simp_bolttransport): Bolt Transports
+
 ## Classes
 
 ### simp_bolt
@@ -69,6 +74,22 @@ Configure the system as a target for Bolt management
 
 Default value: `false`
 
+##### `simp_environment`
+
+Data type: `Boolean`
+
+Utilize the SIMP Omni-Environment.
+
+Default value: `false`
+
+##### `simp_environment_name`
+
+Data type: `String`
+
+The name of the SIMP Omni-Environment.
+
+Default value: 'bolt'
+
 ##### `package_name`
 
 Data type: `String`
@@ -123,6 +144,15 @@ https://puppet.com/docs/bolt/latest/bolt_configuration_options.html.
 
 The following parameters are available in the `simp_bolt::controller::config` class.
 
+##### `local_user`
+
+Data type: `Optional[String[1]]`
+
+The local account to be used for running Bolt. The default is the $username account specified
+in the user.pp manifest.
+
+Default value: getvar(simp_bolt::controller::local_user_name)
+
 ##### `local_group`
 
 Data type: `Optional[String[1]]`
@@ -132,19 +162,30 @@ default is the $username account specified in the user.pp manifest.
 
 Default value: getvar(simp_bolt::controller::local_group_name)
 
-##### `local_user_home`
+##### `local_home`
+
+Data type: `Stdlib::Unixpath`
 
 The home directory of the local account to be used for running Bolt. The default is the
 $home directory for the account specified in the user.pp manifest.
 
-##### `local_user`
+Default value: pick(getvar(simp_bolt::controller::local_user_home), '/var/local/simp_bolt')
+
+##### `use_simp_env`
+
+Data type: `Boolean`
+
+Use the SIMP Omni-Environment.
+
+Default value: getvar(simp_bolt::simp_environment)
+
+##### `use_simp_env_name`
 
 Data type: `Optional[String[1]]`
 
-The local account to be used for running Bolt. The default is the $username account specified
-in the user.pp manifest.
+The name of the SIMP Omni-Environment to use.
 
-Default value: getvar(simp_bolt::controller::local_user_name)
+Default value: getvar(simp_bolt::simp_environment_name)
 
 ##### `config_hash`
 
@@ -251,7 +292,7 @@ Data type: `Boolean`
 
 Add output to an existing log file. By default in Bolt this is true.
 
-Default value: `false`
+Default value: `true`
 
 ##### `modulepath`
 
@@ -264,25 +305,29 @@ in `~/.puppetlabs/bolt`.
 
 Default value: `undef`
 
-##### `local_home`
+##### `tty`
 
-Data type: `Stdlib::Unixpath`
+Data type: `Boolean`
 
+Request a pseudo TTY on nodes that support it. By default in Bolt this is false.
 
-
-Default value: pick(getvar(simp_bolt::controller::local_user_home), '/var/local/simp_bolt')
+Default value: getvar(simp_bolt::simp_environment)
 
 ##### `transport_options`
 
 Data type: `Hash[Simp_bolt::Transport, Hash]`
 
+A Hash of transport options that will be added to the configuration file
+without any error checking of key/value pairs.
 
+You must have settings specified for the ``$default_transport``
 
 Default value: {
                                                             'ssh' => {
                                                               'tmpdir' => $simp_bolt::target_user_home,
                                                               'user'   => $simp_bolt::target_user_name,
-                                                              'run-as' => getvar(simp_bolt::target_sudo_user)
+                                                              'run-as' => getvar(simp_bolt::target_sudo_user),
+                                                              'tty'    => $tty
                                                             }.delete_undef_values
                                                           }
 
@@ -492,11 +537,15 @@ The GID of the user
 
 Default value: $simp_bolt::target::user_gid
 
-##### `ssh_authorized_key`
+##### `ssh_authorized_keys`
+
+Data type: `Optional[Array[String[1]]]`
 
 The SSH public key for the user
 
 * See the native ``ssh_authorized_key`` resource definition for details
+
+Default value: getvar(simp_bolt::target::user_ssh_authorized_keys)
 
 ##### `ssh_authorized_key_type`
 
@@ -508,9 +557,13 @@ The SSH public key type
 
 Default value: $simp_bolt::target::user_ssh_authorized_key_type
 
-##### `sudo_users`
+##### `sudo_user`
+
+Data type: `Optional[String[1]]`
 
 The users that the ``username`` user may escalate to
+
+Default value: getvar(simp_bolt::target::user_sudo_user)
 
 ##### `sudo_password_required`
 
@@ -549,19 +602,17 @@ The ``pam_limits`` restricting the number of concurrent sessions permitted for
 
 Default value: getvar(simp_bolt::target::user_max_logins)
 
-##### `ssh_authorized_keys`
+## Data types
 
-Data type: `Optional[Array[String[1]]]`
+### Simp_bolt::LogLevel
 
+Bolt Log Levels
 
+Alias of `Enum['debug', 'info', 'notice', 'warn', 'error']`
 
-Default value: getvar(simp_bolt::target::user_ssh_authorized_keys)
+### Simp_bolt::Transport
 
-##### `sudo_user`
+Bolt Transports
 
-Data type: `Optional[String[1]]`
-
-
-
-Default value: getvar(simp_bolt::target::user_sudo_user)
+Alias of `Enum['docker', 'local', 'pcp', 'ssh', 'winrm']`
 

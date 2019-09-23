@@ -64,6 +64,24 @@ describe 'simp_bolt::controller::config' do
           it { is_expected.to create_file('/var/log/puppetlabs/bolt') }
         end
 
+        context 'with a simp environment specified' do
+          let(:params) {{
+            :use_simp_env      => true,
+            :use_simp_env_name => 'bolt'
+          }}
+          it_behaves_like "a structured module"
+          it { is_expected.not_to contain_exec('Create Local Bolt Home') }
+          it { is_expected.not_to create_file('/var/local/simp_bolt/puppetlabs') }
+          it { is_expected.to create_file('/etc/puppetlabs/code/environments/bolt') }
+          it { is_expected.to create_file('/etc/puppetlabs/code/environments/bolt/bolt.yaml') }
+          it { is_expected.to create_file('/etc/puppetlabs/code/environments/bolt/data') }
+          it { is_expected.to create_file('/etc/puppetlabs/code/environments/bolt/hiera.yaml') }
+          it { is_expected.to create_file('/etc/puppetlabs/code/environments/bolt/analytics.yaml') }
+          it { is_expected.to create_file_line('analytics_yaml') }
+          it { is_expected.to contain_exec('Create Bolt Log Dir').with_command('mkdir -p /var/log/puppetlabs/bolt') }
+          it { is_expected.not_to create_file('/var/log/puppetlabs/bolt') }
+        end
+
         context 'with a config hash' do
           let(:header){
             <<-EOM

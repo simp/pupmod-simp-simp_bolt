@@ -24,18 +24,26 @@
 #   * Configuration specifics should be managed via the
 #     ``simp_bolt::target`` parameters.
 #
+# @param simp_environment
+#   Utilize the SIMP Omni-Environment.
+#
+# @param simp_environment_name
+#   The name of the SIMP Omni-Environment.
+#
 # @param package_name
 #   The name of the Puppet Bolt rpm package
 #
 # @author SIMP Team <https://simp-project.com/>
 #
 class simp_bolt (
-  String[1]           $target_user_name = 'simp_bolt',
-  Stdlib::Unixpath    $target_user_home = "/var/local/${target_user_name}",
-  Optional[String[1]] $target_sudo_user = 'root',
-  Boolean             $bolt_controller  = false,
-  Boolean             $bolt_target      = false,
-  String              $package_name     = 'puppet-bolt'
+  String[1]           $target_user_name      = 'simp_bolt',
+  Stdlib::Unixpath    $target_user_home      = "/var/local/${target_user_name}",
+  Optional[String[1]] $target_sudo_user      = 'root',
+  Boolean             $bolt_controller       = false,
+  Boolean             $bolt_target           = false,
+  Boolean             $simp_environment      = false,
+  String              $simp_environment_name = 'bolt',
+  String              $package_name          = 'puppet-bolt'
 ) {
 
   simplib::assert_metadata($module_name)

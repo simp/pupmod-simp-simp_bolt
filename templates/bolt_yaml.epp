@@ -23,7 +23,7 @@
 <% } else { -%>
 ---
 <%   if $modulepath { -%>
-module: <%= $modulepath %>
+modulepath: <%= $modulepath %>
 <%   } -%>
 <%   if $color { -%>
 color: <%= $color %>
