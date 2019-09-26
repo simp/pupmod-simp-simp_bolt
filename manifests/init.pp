@@ -1,4 +1,4 @@
-# @summary Installs and configures Puppet Bolt for use within the SIMP enviroment
+# @summary Installs and configures Puppet Bolt for use within the SIMP environment
 #
 # This class will not do anything on the target system by default. You must
 # opt-in to adding either the controller or the target configuration.
@@ -24,12 +24,6 @@
 #   * Configuration specifics should be managed via the
 #     ``simp_bolt::target`` parameters.
 #
-# @param simp_environment
-#   Utilize the SIMP Omni-Environment.
-#
-# @param simp_environment_name
-#   The name of the SIMP Omni-Environment.
-#
 # @param package_name
 #   The name of the Puppet Bolt rpm package
 #
@@ -41,8 +35,6 @@ class simp_bolt (
   Optional[String[1]] $target_sudo_user      = 'root',
   Boolean             $bolt_controller       = false,
   Boolean             $bolt_target           = false,
-  Boolean             $simp_environment      = false,
-  String              $simp_environment_name = 'bolt',
   String              $package_name          = 'puppet-bolt'
 ) {
 

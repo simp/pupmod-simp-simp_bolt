@@ -17,11 +17,20 @@
 #   The home directory of the local account to be used for running Bolt. The default is the
 #   $home directory for the account specified in the user.pp manifest.
 #
-# @param use_simp_env
+# @param simp_omni_environment
 #   Use the SIMP Omni-Environment.
 #
-# @param use_simp_env_name
+# @param simp_environment_name
 #   The name of the SIMP Omni-Environment to use.
+#
+# @param puppet_env_path
+#   The path to the Puppet environment in the SIMP Omni-Environment.
+#
+# @param secondary_env_path
+#   The path to the secondary environment in the SIMP Omni-Environment.
+#
+# @param writable_env_path
+#   The path to the writable environment in the SIMP Omni-Environment.
 #
 # @param config_hash
 #   If specified, will be passed to the ``to_yaml`` function and output at the
@@ -87,41 +96,44 @@
 #
 class simp_bolt::controller::config (
   # Local Target Directory Options
-  Optional[String[1]]              $local_user         = getvar(simp_bolt::controller::local_user_name),
-  Optional[String[1]]              $local_group        = getvar(simp_bolt::controller::local_group_name),
-  Stdlib::Unixpath                 $local_home         = pick(getvar(simp_bolt::controller::local_user_home), '/var/local/simp_bolt'),
+  Optional[String[1]]              $local_user            = getvar(simp_bolt::controller::local_user_name),
+  Optional[String[1]]              $local_group           = getvar(simp_bolt::controller::local_group_name),
+  Stdlib::Unixpath                 $local_home            = pick(getvar(simp_bolt::controller::local_user_home), '/var/local/simp_bolt'),
 
   # SIMP environment options
-  Boolean                          $use_simp_env       = getvar(simp_bolt::simp_environment),
-  Optional[String[1]]              $use_simp_env_name  = getvar(simp_bolt::simp_environment_name),
+  Boolean                          $simp_omni_environment = false,
+  Optional[String[1]]              $simp_environment_name = 'bolt',
+  Optional[Stdlib::Unixpath]       $puppet_env_path       = undef,
+  Optional[Stdlib::Unixpath]       $secondary_env_path    = undef,
+  Optional[Stdlib::Unixpath]       $writable_env_path     = undef,
 
   # Config File Specification
-  Optional[Hash]                   $config_hash        = undef,
+  Optional[Hash]                   $config_hash           = undef,
 
   # Global Bolt Options
-  Boolean                          $color              = true,
-  Optional[Integer[0]]             $concurrency        = undef,
-  Simp_bolt::Transport             $default_transport  = 'ssh',
-  Boolean                          $disable_analytics  = true,
-  Optional[Enum['human','json']]   $format             = undef,
-  Optional[String[1]]              $hiera_config       = undef,
-  Optional[String[1]]              $inventoryfile      = undef,
-  Simp_bolt::LogLevel              $log_console_level  = 'info',
-  Stdlib::Unixpath                 $log_file           = '/var/log/puppetlabs/bolt/bolt.log',
-  Simp_bolt::LogLevel              $log_file_level     = 'info',
-  Boolean                          $log_file_append    = true,
-  Optional[String[1]]              $modulepath         = undef,
+  Boolean                          $color                 = true,
+  Optional[Integer[0]]             $concurrency           = undef,
+  Simp_bolt::Transport             $default_transport     = 'ssh',
+  Boolean                          $disable_analytics     = true,
+  Optional[Enum['human','json']]   $format                = undef,
+  Optional[String[1]]              $hiera_config          = undef,
+  Optional[String[1]]              $inventoryfile         = undef,
+  Simp_bolt::LogLevel              $log_console_level     = 'info',
+  Stdlib::Unixpath                 $log_file              = '/var/log/puppetlabs/bolt/bolt.log',
+  Simp_bolt::LogLevel              $log_file_level        = 'info',
+  Boolean                          $log_file_append       = true,
+  Optional[String[1]]              $modulepath            = undef,
 
   # Overall Transport Options
-  Boolean                          $tty                = getvar(simp_bolt::simp_environment),
-  Hash[Simp_bolt::Transport, Hash] $transport_options  = {
-                                                            'ssh' => {
-                                                              'tmpdir' => $simp_bolt::target_user_home,
-                                                              'user'   => $simp_bolt::target_user_name,
-                                                              'run-as' => getvar(simp_bolt::target_sudo_user),
-                                                              'tty'    => $tty
-                                                            }.delete_undef_values
-                                                          }
+  Boolean                          $tty                   = $simp_omni_environment,
+  Hash[Simp_bolt::Transport, Hash] $transport_options     = {
+                                                              'ssh' => {
+                                                                'tmpdir' => $simp_bolt::target_user_home,
+                                                                'user'   => $simp_bolt::target_user_name,
+                                                                'run-as' => getvar(simp_bolt::target_sudo_user),
+                                                                'tty'    => $tty
+                                                              }.delete_undef_values
+                                                            }
 ){
   assert_private()
 
@@ -144,34 +156,53 @@ class simp_bolt::controller::config (
     $_create_log_dir = false
   }
 
-  if $use_simp_env {
-    $_bolt_dir = "/etc/puppetlabs/code/environments/${use_simp_env_name}"
+  if $simp_omni_environment {
+    if $puppet_env_path {
+      $_bolt_dir = "${puppet_env_path}/${simp_environment_name}"
+    }
+    else {
+      $_bolt_dir = "${_puppet_dir}/${simp_environment_name}"
+    }
+
+    if $secondary_env_path {
+      $secondary_env = "${secondary_env_path}/${simp_environment_name}"
+    }
+    else {
+      $secondary_env = "${local_home}/secondary/${simp_environment_name}"
+    }
+
+    if $writable_env_path {
+      $writable_env = "${writable_env_path}/${simp_environment_name}"
+    }
+    else {
+      $writable_env = "${local_home}/writable/${simp_environment_name}"
+    }
+
     if $modulepath {
       $_modulepath = $modulepath
     }
     else {
-      $_modulepath = "modules:site-modules:site:/var/simp/environments/${use_simp_env_name}/site_files:\$basemodulepath"
+      $_modulepath = "modules:site-modules:site:${secondary_env}/site_files:\$basemodulepath"
     }
   }
   else {
     $_bolt_dir = "${_puppet_dir}/bolt"
     $_modulepath = $modulepath
+  }
 
-    exec { 'Create Local Bolt Home':
-      command => "mkdir -p ${local_home}",
-      path    => ['/bin','/usr/bin'],
-      umask   => '022',
-      unless  => "test -d ${local_home}"
-    }
+  exec { 'Create Local Bolt Home':
+    command => "mkdir -p ${local_home}",
+    path    => ['/bin','/usr/bin'],
+    umask   => '022',
+    unless  => "test -d ${local_home}"
+  }
 
-    file { $_puppet_dir:
-      ensure  => 'directory',
-      owner   => $_local_user,
-      group   => $_local_group,
-      mode    => $_bolt_dir_mode,
-      require => Exec['Create Local Bolt Home']
-    }
-
+  file { $_puppet_dir:
+    ensure  => 'directory',
+    owner   => $_local_user,
+    group   => $_local_group,
+    mode    => $_bolt_dir_mode,
+    require => Exec['Create Local Bolt Home']
   }
 
   file { $_bolt_dir:

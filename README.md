@@ -161,24 +161,30 @@ To apply an existing manifest, `su` to the bolt user and execute
 
 ### Within the SIMP Omni-Environment
 
-If utilizing a SIMP Omni-Environment, change directories to the Puppet
-Environment directory, /etc/puppetlabs/code/environments/bolt, and execute
-Bolt commands there so the appropriate configuration files will be utilized.
-The environment can be created with the command `simpenv -n bolt` run as root.
+The `simp_bolt` module is compatible with the SIMP Omni-Evironment to apply
+SIMP settings to target systems.  To utilize a SIMP Omni-Environment, copy the
+contents of `/usr/share/simp/environment-skeleton/puppet` to the desire Puppet
+environment directory, which will also serve as the Boltdir. Copy the contents
+of `/usr/share/simp/environment-skeleton/secondary` and 
+`/usr/share/simp/environment-skeleton/writable` to the desired destinations.
+The paths for all three of the enviroments, as well as the environment name,
+are configurable in Hiera. After copying the environment skeletons, change
+directories to the Puppet Environment directory and execute the following
+SIMP and Bolt commands to generate the Puppetfiles and install the modules.
 
-The Puppetfile and Puppetfile.simp behave the same as the traditional SIMP
-on a Puppet system. To install or update the modules as specified in the
-Puppetfile, simply execute 
-`bolt puppetfile install --boltdir /etc/puppetlabs/code/environments/bolt`.
-Specifying the boltdir is only necessary if a bolt.yaml file is not present
-or if the command is run from a different directory.
+```shell
+simp puppetfile generate -s > Puppetfile
+simp puppetfile generate > Puppetfile.simp
+bolt puppetfile install
+```
 
-To apply the SIMP environment to a target system, execute 
+To apply the SIMP environment to a target system, modify the Hiera files as 
+needed and execute
 `bolt apply manifests/site.pp --nodes <NODE NAME(S)> --password --sudo-password`
-from within the Puppet Environment directory. If the target system does not
-have the specified target user account configured, it will be necessary to also
-specify `--user username --run-as root` where username is an existing account
-on the target system with permissions to run sudo commands.
+from within the Boltdir directory. If the target system does not have the
+specified target user account configured, it will be necessary to also specify
+`--user username --run-as root` where username is an existing account on the
+target system with permissions to run sudo commands.
 
 ## Reference
 

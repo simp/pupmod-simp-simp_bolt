@@ -5,7 +5,7 @@
 
 **Classes**
 
-* [`simp_bolt`](#simp_bolt): Installs and configures Puppet Bolt for use within the SIMP enviroment
+* [`simp_bolt`](#simp_bolt): Installs and configures Puppet Bolt for use within the SIMP environment
 * [`simp_bolt::controller`](#simp_boltcontroller): Installs and configures Puppet Bolt for use within the SIMP enviroment
 * [`simp_bolt::controller::config`](#simp_boltcontrollerconfig): Set the global configuration and transport options for Bolt.
 * [`simp_bolt::controller::install`](#simp_boltcontrollerinstall): This class is called from simp_bolt for install.
@@ -73,22 +73,6 @@ Configure the system as a target for Bolt management
   ``simp_bolt::target`` parameters.
 
 Default value: `false`
-
-##### `simp_environment`
-
-Data type: `Boolean`
-
-Utilize the SIMP Omni-Environment.
-
-Default value: `false`
-
-##### `simp_environment_name`
-
-Data type: `String`
-
-The name of the SIMP Omni-Environment.
-
-Default value: 'bolt'
 
 ##### `package_name`
 
@@ -171,21 +155,45 @@ $home directory for the account specified in the user.pp manifest.
 
 Default value: pick(getvar(simp_bolt::controller::local_user_home), '/var/local/simp_bolt')
 
-##### `use_simp_env`
+##### `simp_omni_environment`
 
 Data type: `Boolean`
 
 Use the SIMP Omni-Environment.
 
-Default value: getvar(simp_bolt::simp_environment)
+Default value: `false`
 
-##### `use_simp_env_name`
+##### `simp_environment_name`
 
 Data type: `Optional[String[1]]`
 
 The name of the SIMP Omni-Environment to use.
 
-Default value: getvar(simp_bolt::simp_environment_name)
+Default value: 'bolt'
+
+##### `puppet_env_path`
+
+Data type: `Optional[Stdlib::Unixpath]`
+
+The path to the Puppet environment in the SIMP Omni-Environment.
+
+Default value: `undef`
+
+##### `secondary_env_path`
+
+Data type: `Optional[Stdlib::Unixpath]`
+
+The path to the secondary environment in the SIMP Omni-Environment.
+
+Default value: `undef`
+
+##### `writable_env_path`
+
+Data type: `Optional[Stdlib::Unixpath]`
+
+The path to the writable environment in the SIMP Omni-Environment.
+
+Default value: `undef`
 
 ##### `config_hash`
 
@@ -311,7 +319,7 @@ Data type: `Boolean`
 
 Request a pseudo TTY on nodes that support it. By default in Bolt this is false.
 
-Default value: getvar(simp_bolt::simp_environment)
+Default value: $simp_omni_environment
 
 ##### `transport_options`
 
@@ -323,13 +331,13 @@ without any error checking of key/value pairs.
 You must have settings specified for the ``$default_transport``
 
 Default value: {
-                                                            'ssh' => {
-                                                              'tmpdir' => $simp_bolt::target_user_home,
-                                                              'user'   => $simp_bolt::target_user_name,
-                                                              'run-as' => getvar(simp_bolt::target_sudo_user),
-                                                              'tty'    => $tty
-                                                            }.delete_undef_values
-                                                          }
+                                                               'ssh' => {
+                                                                 'tmpdir' => $simp_bolt::target_user_home,
+                                                                 'user'   => $simp_bolt::target_user_name,
+                                                                 'run-as' => getvar(simp_bolt::target_sudo_user),
+                                                                 'tty'    => $tty
+                                                               }.delete_undef_values
+                                                             }
 
 ### simp_bolt::controller::install
 
