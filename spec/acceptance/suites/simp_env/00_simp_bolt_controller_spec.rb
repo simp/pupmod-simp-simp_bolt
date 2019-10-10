@@ -55,11 +55,8 @@ describe 'Install Bolt and SIMP' do
       # Append domain name to hosts in the togen file
       domain = on(bolt_controller, "hostname -A|awk -F. '{for (i=2; i<=NF; i++) printf \".\"$i}'").stdout.strip
       on(bolt_controller, "sed -i \"s/$/#{domain}/g\" #{ca_dir}/togen")
-      #on(bolt_controller, "for dn in `hostname -A|awk -F. '{for (i=2; i<=NF; i++) printf \".\"$i}'`; do sed -i s/$/${dn}/g #{ca_dir}/togen; done")
-#      on(bolt_controller, "cat #{ca_dir}/togen | awk  -F. '{print $1}' >> #{ca_dir}/togen")
       # Allowing exit code 1 because gencerts_nopass.sh tries to chown files, which vagrant user cannot perform
       on(bolt_controller, "#{run_cmd} \"cd #{ca_dir} && ./gencerts_nopass.sh auto\"", :acceptable_exit_codes => [1])
-
       # Create Puppetfiles and install modules
       on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && simp puppetfile generate -s > Puppetfile\"")
       on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && simp puppetfile generate > Puppetfile.simp\"")
@@ -72,7 +69,6 @@ describe 'Install Bolt and SIMP' do
       on(bolt_controller, "#{prune_command}")
       # Install modules
       on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && bolt puppetfile install\"")
-
       # Copy bolt manifest and Hiera files 
       on(bolt_controller, "#{run_cmd} \"touch #{bolt_dir}/manifests/bolt.pp #{hiera_dir}/default.yaml\"")
       on(bolt_controller, "#{run_cmd} \"touch #{hosts_dir}/bolt-controller.yaml\"")
@@ -100,20 +96,18 @@ describe 'Install Bolt and SIMP' do
       # Apply SIMP on the bolt-controller, done twice, permitting failures on first run
       on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}site.pp  #{initial_bolt_options} -n bolt-controller#{domain}\"", :acceptable_exit_codes => [1])
       on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}site.pp  #{initial_bolt_options} -n  bolt-controller#{domain}\"")
-      #on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}site.pp  #{initial_bolt_options} -n `hostname -A`\"")
     end
 
     let (:bolt_options) { '-p password --no-host-key-check' }
 
     it 'should apply SIMP settings to the targets' do
-      domain = on(bolt_controller, "hostname -A|awk -F. '{for (i=2; i<=NF; i++) printf \".\"$i}'").stdout.strip
       bolt_controller = only_host_with_role(hosts, 'boltserver')
+      domain = on(bolt_controller, "hostname -A|awk -F. '{for (i=2; i<=NF; i++) printf \".\"$i}'").stdout.strip
       hosts_with_role( hosts, 'target' ).each do |host|
         on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}site.pp  #{initial_bolt_options} -n #{host.name}#{domain}\"", :acceptable_exit_codes => [1])
         on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}site.pp  #{bolt_options} -n #{host.name}#{domain}\"")
       end
     end
-
 
   end
 
