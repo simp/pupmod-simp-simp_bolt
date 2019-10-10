@@ -1,8 +1,16 @@
 require 'spec_helper_acceptance'
 
-test_name 'Install Bolt and SIMP modules'
+test_name 'Install Bolt and SIMP'
 
-describe 'Install Bolt and SIMP modules' do
+describe 'Install Bolt and SIMP' do
+
+  # Enable ssh login with passwords
+  hosts.each do |host|
+    it 'should permit ssh with passwords' do
+      on(host, 'sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config')
+      on(host, 'systemctl restart sshd')
+    end
+  end
 
   let(:run_cmd) {'runuser vagrant -c '}
   let(:files_dir) { File.join(File.dirname(__FILE__), 'files') }
@@ -10,7 +18,7 @@ describe 'Install Bolt and SIMP modules' do
 
   context 'on Bolt controller' do
     # Install SIMP and Bolt
-    it 'should install SIMP and Bolt' do
+    it 'should install SIMP and Bolt rpms' do
       bolt_controller = only_host_with_role(hosts, 'boltserver')
       on(bolt_controller, 'rpm -Uvh https://yum.puppet.com/puppet-tools-release-el-7.noarch.rpm')
       on(bolt_controller, 'yum install -y simp puppet-bolt')
@@ -20,7 +28,7 @@ describe 'Install Bolt and SIMP modules' do
       on(bolt_controller, "chmod -R o+rX #{skeleton_dir}")
     end
 
-    # We'll set up the Bolt and SIMP environments from the commandline
+    # We'll set up the Bolt and SIMP environments from the commandline with a few variables
     let(:bolt_dir) { '/home/vagrant/.puppetlabs/bolt' }
     let(:sec_dir) { '/home/vagrant/secondary' }
     let(:ca_dir) { "#{sec_dir}/bolt/FakeCA" }
@@ -38,29 +46,75 @@ describe 'Install Bolt and SIMP modules' do
       # Copy the SIMP omni-environment directories from the skeleton 
       on(bolt_controller, "#{run_cmd} \"rsync -a #{skeleton_dir}/puppet/ #{bolt_dir}/\"")
       on(bolt_controller, "#{run_cmd} \"rsync -a #{skeleton_dir}/secondary/ #{sec_dir}/bolt\"")
-      # Copy togen file to the FakeCA dir and generate certs
-      scp_to(bolt_controller, File.join(files_dir, 'togen.example'), "#{ca_dir}/togen")
+      # Populate the togen file in the FakeCA dir and generate certs
+      togen = []
+      hosts.each do |host|
+        togen << host.hostname
+      end
+      create_remote_file(bolt_controller, "#{ca_dir}/togen", togen.join("\n"))
+      # Append domain name to hosts in the togen file
+      domain = on(bolt_controller, "hostname -A|awk -F. '{for (i=2; i<=NF; i++) printf \".\"$i}'").stdout.strip
+      on(bolt_controller, "sed -i \"s/$/#{domain}/g\" #{ca_dir}/togen")
+      #on(bolt_controller, "for dn in `hostname -A|awk -F. '{for (i=2; i<=NF; i++) printf \".\"$i}'`; do sed -i s/$/${dn}/g #{ca_dir}/togen; done")
+#      on(bolt_controller, "cat #{ca_dir}/togen | awk  -F. '{print $1}' >> #{ca_dir}/togen")
       # Allowing exit code 1 because gencerts_nopass.sh tries to chown files, which vagrant user cannot perform
       on(bolt_controller, "#{run_cmd} \"cd #{ca_dir} && ./gencerts_nopass.sh auto\"", :acceptable_exit_codes => [1])
 
       # Create Puppetfiles and install modules
-      # In the following sections, touching the files before scp ensures file permissions
       on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && simp puppetfile generate -s > Puppetfile\"")
       on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && simp puppetfile generate > Puppetfile.simp\"")
+      # In the following commands, touching the files before scp ensures correct file permissions
       on(bolt_controller, "#{run_cmd} \"touch #{bolt_dir}/updated_modules\"")
       scp_to(bolt_controller, File.join(files_dir, 'updated_modules.example'), "#{bolt_dir}/updated_modules")
+      # Add updated modules to the Puppetfile
       on(bolt_controller, "sed -i \"/# Add your own Puppet modules here/r #{bolt_dir}/updated_modules\" #{bolt_dir}/Puppetfile")
+      # Remove updated modules from Puppetfile.simp so there are no duplicates
       on(bolt_controller, "#{prune_command}")
+      # Install modules
       on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && bolt puppetfile install\"")
 
       # Copy bolt manifest and Hiera files 
       on(bolt_controller, "#{run_cmd} \"touch #{bolt_dir}/manifests/bolt.pp #{hiera_dir}/default.yaml\"")
-      on(bolt_controller, "#{run_cmd} \"touch #{hosts_dir}/bolt-controller.yaml #{hosts_dir}/target-el7.yaml\"")
+      on(bolt_controller, "#{run_cmd} \"touch #{hosts_dir}/bolt-controller.yaml\"")
       scp_to(bolt_controller, File.join(files_dir, 'bolt.pp.example'), "#{bolt_dir}/manifests/bolt.pp")
       scp_to(bolt_controller, File.join(files_dir, 'default.yaml.example'), "#{hiera_dir}/default.yaml")
       scp_to(bolt_controller, File.join(files_dir, 'bolt-controller.yaml.example'), "#{hosts_dir}/bolt-controller.yaml")
-      scp_to(bolt_controller, File.join(files_dir, 'target-el7.yaml.example'), "#{hiera_dir}/target-el7.yaml")
+      hosts_with_role( hosts, 'target' ).each do |host|
+        on(bolt_controller, "#{run_cmd} \"touch #{hosts_dir}/#{host.name}.yaml\"")
+        scp_to(bolt_controller, File.join(files_dir, 'target.yaml.example'), "#{hosts_dir}/#{host.name}.yaml")
+      end
     end
 
+    let (:bolt_command) { 'bolt apply manifests/' }
+    let (:initial_bolt_options) { '-u vagrant -p vagrant --run-as root --sudo-password vagrant --no-host-key-check --tmpdir /home/vagrant' }
+    let (:simp_config_settings) { 'cli::network::interface=eth1 cli::is_simp_ldap_server=false cli::network::dhcp=static cli::set_grub_password=false svckill::mode=enforcing' }
+
+    it 'should apply SIMP settings to the bolt-controller' do
+      bolt_controller = only_host_with_role(hosts, 'boltserver')
+      domain = on(bolt_controller, "hostname -A|awk -F. '{for (i=2; i<=NF; i++) printf \".\"$i}'").stdout.strip
+      # Apply simp_bolt module on the bolt-controller
+      on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}bolt.pp #{initial_bolt_options} -n bolt-controller --transport ssh\"")
+      # Set basic SIMP configuration
+      on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && simp config --dry-run -f -D -s #{simp_config_settings}\"")
+      on(bolt_controller, "rsync -a /home/vagrant/.simp/simp_conf.yaml #{hiera_dir}/simp_config_settings.yaml")
+      # Apply SIMP on the bolt-controller, done twice, permitting failures on first run
+      on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}site.pp  #{initial_bolt_options} -n bolt-controller#{domain}\"", :acceptable_exit_codes => [1])
+      on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}site.pp  #{initial_bolt_options} -n  bolt-controller#{domain}\"")
+      #on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}site.pp  #{initial_bolt_options} -n `hostname -A`\"")
+    end
+
+    let (:bolt_options) { '-p password --no-host-key-check' }
+
+    it 'should apply SIMP settings to the targets' do
+      domain = on(bolt_controller, "hostname -A|awk -F. '{for (i=2; i<=NF; i++) printf \".\"$i}'").stdout.strip
+      bolt_controller = only_host_with_role(hosts, 'boltserver')
+      hosts_with_role( hosts, 'target' ).each do |host|
+        on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}site.pp  #{initial_bolt_options} -n #{host.name}#{domain}\"", :acceptable_exit_codes => [1])
+        on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}site.pp  #{bolt_options} -n #{host.name}#{domain}\"")
+      end
+    end
+
+
   end
+
 end

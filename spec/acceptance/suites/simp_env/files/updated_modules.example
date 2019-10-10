@@ -1,14 +1,19 @@
-# Remove when pupmod-simp-simp_bolt-0.2.0-0 is released
+# Remove when pupmod-simp-simp_bolt-0.2.0 is released
 mod 'simp-simp_bolt',
   :git    => 'https://github.com/m-morrone/pupmod-simp-simp_bolt',
   :branch => 'SIMP-7108'
 
-# Remove when pupmod-simp-simp_options-1.4.0-0 is released
+# Remove when pupmod-simp-simp_options-1.4.0 is released
 mod 'simp-simp_options',
   :git    => 'https://github.com/simp/pupmod-simp-simp_options',
   :branch => 'master'
 
-# Remove when pupmod-simp-simplib-4.0.0-0 is released
+# Remove when pupmod-simp-simplib-4.0.0 is released
 mod 'simp-simplib',
   :git    => 'https://github.com/simp/pupmod-simp-simplib',
+  :branch => 'master'
+
+# Remove when pupmod-simp-simp-4.10.2 is released
+mod 'simp-simp',
+  :git    => 'https://github.com/simp/pupmod-simp-simp',
   :branch => 'master'
