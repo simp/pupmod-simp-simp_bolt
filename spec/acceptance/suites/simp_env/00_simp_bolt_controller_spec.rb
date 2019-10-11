@@ -1,14 +1,18 @@
-require 'spec_helper_acceptance'
+require 'bolt_helper_acceptance'
 
-test_name 'Install Bolt and SIMP'
+test_name 'Install SIMP via Bolt'
 
-describe 'Install Bolt and SIMP' do
+describe 'Install SIMP via Bolt' do
 
   # Enable ssh login with passwords
   hosts.each do |host|
-    it 'should permit ssh with passwords' do
+    it 'should enable ssh with passwords' do
       on(host, 'sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config')
-      on(host, 'systemctl restart sshd')
+      if os.eql?('7')
+        on(host, 'systemctl restart sshd')
+      else os.eql?('6')
+        on(host, 'service sshd restart')
+      end
     end
   end
 
@@ -28,7 +32,7 @@ describe 'Install Bolt and SIMP' do
       on(bolt_controller, "chmod -R o+rX #{skeleton_dir}")
     end
 
-    # We'll set up the Bolt and SIMP environments from the commandline with a few variables
+    # Set up the Bolt and SIMP environments from the commandline with a few variable helpers
     let(:bolt_dir) { '/home/vagrant/.puppetlabs/bolt' }
     let(:sec_dir) { '/home/vagrant/secondary' }
     let(:ca_dir) { "#{sec_dir}/bolt/FakeCA" }
@@ -75,9 +79,12 @@ describe 'Install Bolt and SIMP' do
       scp_to(bolt_controller, File.join(files_dir, 'bolt.pp.example'), "#{bolt_dir}/manifests/bolt.pp")
       scp_to(bolt_controller, File.join(files_dir, 'default.yaml.example'), "#{hiera_dir}/default.yaml")
       scp_to(bolt_controller, File.join(files_dir, 'bolt-controller.yaml.example'), "#{hosts_dir}/bolt-controller.yaml")
+      ipaddr = on(bolt_controller, "hostname -I|hostname -I|sed -e 's/\s/,/g'").stdout.strip
       hosts_with_role( hosts, 'target' ).each do |host|
         on(bolt_controller, "#{run_cmd} \"touch #{hosts_dir}/#{host.name}.yaml\"")
         scp_to(bolt_controller, File.join(files_dir, 'target.yaml.example'), "#{hosts_dir}/#{host.name}.yaml")
+        # Adding IP addresses because DNS is not configured
+        on(bolt_controller, "sed -i \"s/user_allowed_from: [[]/user_allowed_from: [#{ipaddr}/\" #{hosts_dir}/#{host.name}.yaml")
       end
     end
 
@@ -104,11 +111,15 @@ describe 'Install Bolt and SIMP' do
       bolt_controller = only_host_with_role(hosts, 'boltserver')
       domain = on(bolt_controller, "hostname -A|awk -F. '{for (i=2; i<=NF; i++) printf \".\"$i}'").stdout.strip
       hosts_with_role( hosts, 'target' ).each do |host|
+        # Add hmac-sha1 to the allow ciphers to accomodate el6
+        # This could be done via Bolt on the controller but the ssh module appended Host target-el6 to the end of ssh_config, meaning Host * matched first
+        on(bolt_controller, "sed -i \"/^Host \*/i Host #{host.name}#{domain}#\" /etc/ssh/ssh_config")
+        on(bolt_controller, "sed -i \"/^Host \*/i MACs hmac-sha1\" /etc/ssh/ssh_config")
+        # Using initial_bolt_options for first run because the simp_bolt user has not been created yet, permitting failures on first run
         on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}site.pp  #{initial_bolt_options} -n #{host.name}#{domain}\"", :acceptable_exit_codes => [1])
+        # Using bolt_options to specify simp_bolt user password and no-host-key-check for ssh
         on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}site.pp  #{bolt_options} -n #{host.name}#{domain}\"")
       end
     end
-
   end
-
 end
