@@ -100,6 +100,7 @@ describe 'Install SIMP via Bolt' do
       # Apply simp_bolt module on the bolt-controller
       on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}bolt.pp #{initial_bolt_options} -n bolt-controller --transport ssh\"")
       # Set basic SIMP configuration
+      # Need to determine how to run simp config as non-root user but in the meantime this provides a few basic settings
       on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && simp config --dry-run -f -D -s #{simp_config_settings}\"")
       on(bolt_controller, "rsync -a /home/vagrant/.simp/simp_conf.yaml #{hiera_dir}/simp_config_settings.yaml")
       # Apply SIMP on the bolt-controller, done twice, permitting failures on first run
