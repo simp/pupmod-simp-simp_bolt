@@ -27,13 +27,6 @@ HOSTS:
     hypervisor: <%= hypervisor %>
     vagrant_memsize: 4608
     vagrant_cpus: 2
-    yum_repos:
-      simp_stable:
-        baseurl: 'https://download.simp-project.com/simp/yum/releases/6/el/$releasever/$basearch/simp'
-        gpgkeys:
-          - https://raw.githubusercontent.com/NationalSecurityAgency/SIMP/master/GPGKEYS/RPM-GPG-KEY-SIMP
-          - https://download.simp-project.com/simp/GPGKEYS/RPM-GPG-KEY-SIMP-6
-
   target-el7:
     roles:
       - target

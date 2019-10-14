@@ -1,4 +1,4 @@
-require 'bolt_helper_acceptance'
+require 'spec_helper_bolt'
 
 test_name 'Install SIMP via Bolt'
 
@@ -24,6 +24,8 @@ describe 'Install SIMP via Bolt' do
     # Install SIMP and Bolt
     it 'should install SIMP and Bolt rpms' do
       bolt_controller = only_host_with_role(hosts, 'boltserver')
+      on(bolt_controller, 'curl -s https://packagecloud.io/install/repositories/simp-project/6_X/script.rpm.sh | sudo bash')
+      on(bolt_controller, 'curl -s https://packagecloud.io/install/repositories/simp-project/6_X_Dependencies/script.rpm.sh | sudo bash')
       on(bolt_controller, 'rpm -Uvh https://yum.puppet.com/puppet-tools-release-el-7.noarch.rpm')
       on(bolt_controller, 'yum install -y simp puppet-bolt')
       # This next step is only required until permisions on SIMP modules are changed
@@ -111,10 +113,12 @@ describe 'Install SIMP via Bolt' do
       bolt_controller = only_host_with_role(hosts, 'boltserver')
       domain = on(bolt_controller, "hostname -A|awk -F. '{for (i=2; i<=NF; i++) printf \".\"$i}'").stdout.strip
       hosts_with_role( hosts, 'target' ).each do |host|
-        # Add hmac-sha1 to the allow ciphers to accomodate el6
-        # This could be done via Bolt on the controller but the ssh module appended Host target-el6 to the end of ssh_config, meaning Host * matched first
-        on(bolt_controller, "sed -i \"/^Host \*/i Host #{host.name}#{domain}#\" /etc/ssh/ssh_config")
-        on(bolt_controller, "sed -i \"/^Host \*/i MACs hmac-sha1\" /etc/ssh/ssh_config")
+        if os.eql?('6')
+          # Add hmac-sha1 to the allow ciphers to accomodate el6
+          # This could be done via Bolt on the controller but the ssh module appended Host target-el6 to the end of ssh_config, meaning Host * matched first
+          on(bolt_controller, "sed -i \"/^Host \*/i Host #{host.name}#{domain}#\" /etc/ssh/ssh_config")
+          on(bolt_controller, "sed -i \"/^Host \*/i MACs hmac-sha1\" /etc/ssh/ssh_config")
+        end
         # Using initial_bolt_options for first run because the simp_bolt user has not been created yet, permitting failures on first run
         on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}site.pp  #{initial_bolt_options} -n #{host.name}#{domain}\"", :acceptable_exit_codes => [1])
         # Using bolt_options to specify simp_bolt user password and no-host-key-check for ssh
