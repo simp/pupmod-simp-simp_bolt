@@ -8,6 +8,7 @@ describe 'Install SIMP via Bolt' do
   hosts.each do |host|
     it 'should enable ssh with passwords' do
       on(host, 'sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config')
+      os = fact_on(host,'operatingsystemmajrelease')
       if os.eql?('7')
         on(host, 'systemctl restart sshd')
       else os.eql?('6')
@@ -114,6 +115,7 @@ describe 'Install SIMP via Bolt' do
       bolt_controller = only_host_with_role(hosts, 'boltserver')
       domain = on(bolt_controller, "hostname -A|awk -F. '{for (i=2; i<=NF; i++) printf \".\"$i}'").stdout.strip
       hosts_with_role( hosts, 'target' ).each do |host|
+        os = fact_on(host,'operatingsystemmajrelease')
         if os.eql?('6')
           # Add hmac-sha1 to the allow ciphers to accomodate el6
           # This could be done via Bolt on the controller but the ssh module appended Host target-el6 to the end of ssh_config, meaning Host * matched first
