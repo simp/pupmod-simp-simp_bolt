@@ -119,7 +119,7 @@ describe 'Install SIMP via Bolt' do
         if os.eql?('6')
           # Add hmac-sha1 to the allow ciphers to accomodate el6
           # This could be done via Bolt on the controller but the ssh module appended Host target-el6 to the end of ssh_config, meaning Host * matched first
-          on(bolt_controller, "sed -i \"/^Host \*/i Host #{host.name}#{domain}#\" /etc/ssh/ssh_config")
+          on(bolt_controller, "sed -i \"/^Host \*/i Host #{host.name}#{domain}\" /etc/ssh/ssh_config")
           on(bolt_controller, "sed -i \"/^Host \*/i MACs hmac-sha1\" /etc/ssh/ssh_config")
         end
         # Using initial_bolt_options for first run because the simp_bolt user has not been created yet, permitting failures on first run
