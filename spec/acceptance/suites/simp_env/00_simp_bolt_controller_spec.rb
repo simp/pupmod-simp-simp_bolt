@@ -56,12 +56,10 @@ describe 'Install SIMP via Bolt' do
       # Populate the togen file in the FakeCA dir and generate certs
       togen = []
       hosts.each do |host|
-        togen << host.hostname
+        fqdn = on(host, 'facter fqdn', :accept_all_exit_codes => true).stdout.strip
+        togen << fqdn
       end
       create_remote_file(bolt_controller, "#{ca_dir}/togen", togen.join("\n"))
-      # Append domain name to hosts in the togen file
-      domain = on(bolt_controller, "hostname -A|awk -F. '{for (i=2; i<=NF; i++) printf \".\"$i}'").stdout.strip
-      on(bolt_controller, "sed -i \"s/$/#{domain}/g\" #{ca_dir}/togen")
       # Allowing exit code 1 because gencerts_nopass.sh tries to chown files, which vagrant user cannot perform
       on(bolt_controller, "#{run_cmd} \"cd #{ca_dir} && ./gencerts_nopass.sh auto\"", :acceptable_exit_codes => [1])
       # Create Puppetfiles and install modules
@@ -97,35 +95,35 @@ describe 'Install SIMP via Bolt' do
 
     it 'should apply SIMP settings to the bolt-controller' do
       bolt_controller = only_host_with_role(hosts, 'boltserver')
-      domain = on(bolt_controller, "hostname -A|awk -F. '{for (i=2; i<=NF; i++) printf \".\"$i}'").stdout.strip
+      fqdn = on(bolt_controller, 'facter fqdn', :accept_all_exit_codes => true).stdout.strip
       # Apply simp_bolt module on the bolt-controller
-      on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}bolt.pp #{initial_bolt_options} -n bolt-controller --transport ssh\"")
+      on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}bolt.pp #{initial_bolt_options} -n #{fqdn} --transport ssh\"")
       # Set basic SIMP configuration
       # Need to determine how to run simp config as non-root user but in the meantime this provides a few basic settings
       on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && simp config --dry-run -f -D -s #{simp_config_settings}\"")
       on(bolt_controller, "rsync -a /home/vagrant/.simp/simp_conf.yaml #{hiera_dir}/simp_config_settings.yaml")
       # Apply SIMP on the bolt-controller, done twice, permitting failures on first run
-      on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}site.pp  #{initial_bolt_options} -n bolt-controller#{domain}\"", :acceptable_exit_codes => [1])
-      on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}site.pp  #{initial_bolt_options} -n  bolt-controller#{domain}\"")
+      on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}site.pp  #{initial_bolt_options} -n #{fqdn}\"", :acceptable_exit_codes => [1])
+      on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}site.pp  #{initial_bolt_options} -n  #{fqdn}\"")
     end
 
     let (:bolt_options) { '-p password --no-host-key-check' }
 
     it 'should apply SIMP settings to the targets' do
       bolt_controller = only_host_with_role(hosts, 'boltserver')
-      domain = on(bolt_controller, "hostname -A|awk -F. '{for (i=2; i<=NF; i++) printf \".\"$i}'").stdout.strip
       hosts_with_role( hosts, 'target' ).each do |host|
+        fqdn = on(host, 'facter fqdn', :accept_all_exit_codes => true).stdout.strip
         os = fact_on(host,'operatingsystemmajrelease')
         if os.eql?('6')
           # Add hmac-sha1 to the allow ciphers to accomodate el6
           # This could be done via Bolt on the controller but the ssh module appended Host target-el6 to the end of ssh_config, meaning Host * matched first
-          on(bolt_controller, "sed -i \"/^Host \*/i Host #{host.name}#{domain}\" /etc/ssh/ssh_config")
-          on(bolt_controller, "sed -i \"/^Host \*/i MACs hmac-sha1\" /etc/ssh/ssh_config")
+          on(bolt_controller, "sed -i \"/^Host [\*]/i Host #{fqdn}\" /etc/ssh/ssh_config")
+          on(bolt_controller, "sed -i \"/^Host [\*]/i MACs hmac-sha1\" /etc/ssh/ssh_config")
         end
         # Using initial_bolt_options for first run because the simp_bolt user has not been created yet, permitting failures on first run
-        on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}site.pp  #{initial_bolt_options} -n #{host.name}#{domain}\"", :acceptable_exit_codes => [1])
+        on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}site.pp  #{initial_bolt_options} -n #{fqdn}\"", :acceptable_exit_codes => [1])
         # Using bolt_options to specify simp_bolt user password and no-host-key-check for ssh
-        on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}site.pp  #{bolt_options} -n #{host.name}#{domain}\"")
+        on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && #{bolt_command}site.pp  #{bolt_options} -n #{fqdn}\"")
       end
     end
   end
