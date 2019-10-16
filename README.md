@@ -109,8 +109,8 @@ system as a `bolt_controller` in Hiera.
 simp_bolt::bolt_controller: true
 ```
 
-To configure a Bolt controller to utilize a SIMP Omni-Environment, specify
-the name of the environment in Hiera.
+To configure a Bolt controller to utilize a SIMP Omni-Environment, which
+must be generated first, specify the name of the environment in Hiera.
 
 ```yaml
 simp_bolt::simp_environment: true
@@ -163,7 +163,7 @@ To apply an existing manifest, `su` to the bolt user and execute
 
 The `simp_bolt` module is compatible with the SIMP Omni-Evironment to apply
 SIMP settings to target systems.  To utilize a SIMP Omni-Environment, copy the
-contents of `/usr/share/simp/environment-skeleton/puppet` to the desire Puppet
+contents of `/usr/share/simp/environment-skeleton/puppet` to the desired Puppet
 environment directory, which will also serve as the Boltdir. Copy the contents
 of `/usr/share/simp/environment-skeleton/secondary` and 
 `/usr/share/simp/environment-skeleton/writable` to the desired destinations.
