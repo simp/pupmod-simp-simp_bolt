@@ -17,21 +17,6 @@
 #   The home directory of the local account to be used for running Bolt. The default is the
 #   $home directory for the account specified in the user.pp manifest.
 #
-# @param simp_omni_environment
-#   Use the SIMP Omni-Environment.
-#
-# @param simp_environment_name
-#   The name of the SIMP Omni-Environment to use.
-#
-# @param puppet_env_path
-#   The path to the Puppet environment in the SIMP Omni-Environment.
-#
-# @param secondary_env_path
-#   The path to the secondary environment in the SIMP Omni-Environment.
-#
-# @param writable_env_path
-#   The path to the writable environment in the SIMP Omni-Environment.
-#
 # @param config_hash
 #   If specified, will be passed to the ``to_yaml`` function and output at the
 #   entire configuation of the ``bolt.yaml`` configuation file.
@@ -100,13 +85,6 @@ class simp_bolt::controller::config (
   Optional[String[1]]              $local_group           = getvar(simp_bolt::controller::local_group_name),
   Stdlib::Unixpath                 $local_home            = pick(getvar(simp_bolt::controller::local_user_home), '/var/local/simp_bolt'),
 
-  # SIMP environment options
-  Boolean                          $simp_omni_environment = false,
-  Optional[String[1]]              $simp_environment_name = 'bolt',
-  Optional[Stdlib::Unixpath]       $puppet_env_path       = undef,
-  Optional[Stdlib::Unixpath]       $secondary_env_path    = undef,
-  Optional[Stdlib::Unixpath]       $writable_env_path     = undef,
-
   # Config File Specification
   Optional[Hash]                   $config_hash           = undef,
 
@@ -125,7 +103,7 @@ class simp_bolt::controller::config (
   Optional[String[1]]              $modulepath            = undef,
 
   # Overall Transport Options
-  Boolean                          $tty                   = $simp_omni_environment,
+  Boolean                          $tty                   = true,
   Hash[Simp_bolt::Transport, Hash] $transport_options     = {
                                                               'ssh' => {
                                                                 'tmpdir' => $simp_bolt::target_user_home,
@@ -156,39 +134,8 @@ class simp_bolt::controller::config (
     $_create_log_dir = false
   }
 
-  if $simp_omni_environment {
-    if $puppet_env_path {
-      $_bolt_dir = "${puppet_env_path}/${simp_environment_name}"
-    }
-    else {
-      $_bolt_dir = "${_puppet_dir}/${simp_environment_name}"
-    }
-
-    if $secondary_env_path {
-      $secondary_env = "${secondary_env_path}/${simp_environment_name}"
-    }
-    else {
-      $secondary_env = "${local_home}/secondary/${simp_environment_name}"
-    }
-
-    if $writable_env_path {
-      $writable_env = "${writable_env_path}/${simp_environment_name}"
-    }
-    else {
-      $writable_env = "${local_home}/writable/${simp_environment_name}"
-    }
-
-    if $modulepath {
-      $_modulepath = $modulepath
-    }
-    else {
-      $_modulepath = "modules:site-modules:site:${secondary_env}/site_files:\$basemodulepath"
-    }
-  }
-  else {
-    $_bolt_dir = "${_puppet_dir}/bolt"
-    $_modulepath = $modulepath
-  }
+  $_bolt_dir = "${_puppet_dir}/bolt"
+  $_modulepath = $modulepath
 
   exec { 'Create Local Bolt Home':
     command => "mkdir -p ${local_home}",

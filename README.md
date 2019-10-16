@@ -14,7 +14,6 @@
   * [What simp_bolt affects](#what-simp_bolt-affects)
   * [Beginning with simp_bolt](#beginning-with-simp_bolt)
 * [Usage](#usage)
-  * [Within the SIMP Omni-Environment](#within-the-simp-omni-environment)
 * [Reference](#reference)
 * [Limitations](#limitations)
 * [Development](#development)
@@ -109,14 +108,6 @@ system as a `bolt_controller` in Hiera.
 simp_bolt::bolt_controller: true
 ```
 
-To configure a Bolt controller to utilize a SIMP Omni-Environment, which
-must be generated first, specify the name of the environment in Hiera.
-
-```yaml
-simp_bolt::simp_environment: true
-simp_bolt::simp_environment_name: bolt
-```
-
 To configure a system that will be managed by Bolt, simply `include simp_bolt`
 and specify the system as a ``bolt_target`` in Hiera.
 
@@ -130,7 +121,7 @@ remote systems. Both can be specified in Hiera.  Passwords should be in
 
 ```yaml
 simp_bolt::user::password: '$6$0BVLUF[...]16OtkdiY1'
-simp_bolt::user::ssh_authorized_key: 'AAAAB3Nza[...]qXfdaQ=='
+simp_bolt::user::ssh_authorized_keys: 'AAAAB3Nza[...]qXfdaQ=='
 ```
 
 ## Usage
@@ -158,33 +149,6 @@ simp_bolt::config::modulepath: /path/to/modules
 
 To apply an existing manifest, `su` to the bolt user and execute
 `bolt apply <manifest> --nodes <NODE NAME(S)> --password --sudo-password`.
-
-### Within the SIMP Omni-Environment
-
-The `simp_bolt` module is compatible with the SIMP Omni-Evironment to apply
-SIMP settings to target systems.  To utilize a SIMP Omni-Environment, copy the
-contents of `/usr/share/simp/environment-skeleton/puppet` to the desired Puppet
-environment directory, which will also serve as the Boltdir. Copy the contents
-of `/usr/share/simp/environment-skeleton/secondary` and 
-`/usr/share/simp/environment-skeleton/writable` to the desired destinations.
-The paths for all three of the enviroments, as well as the environment name,
-are configurable in Hiera. After copying the environment skeletons, change
-directories to the Puppet Environment directory and execute the following
-SIMP and Bolt commands to generate the Puppetfiles and install the modules.
-
-```shell
-simp puppetfile generate -s > Puppetfile
-simp puppetfile generate > Puppetfile.simp
-bolt puppetfile install
-```
-
-To apply the SIMP environment to a target system, modify the Hiera files as 
-needed and execute
-`bolt apply manifests/site.pp --nodes <NODE NAME(S)> --password --sudo-password`
-from within the Boltdir directory. If the target system does not have the
-specified target user account configured, it will be necessary to also specify
-`--user username --run-as root` where username is an existing account on the
-target system with permissions to run sudo commands.
 
 ## Reference
 

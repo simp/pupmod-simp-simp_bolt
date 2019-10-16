@@ -64,50 +64,6 @@ describe 'simp_bolt::controller::config' do
           it { is_expected.to create_file('/var/log/puppetlabs/bolt') }
         end
 
-        context 'with a simp omni-environment specified' do
-          let(:modulepath) {
-            '^modulepath: modules:site\-modules:site:\/var\/local\/simp_bolt\/secondary\/bolt\/site_files:\$basemodulepath$'
-          }
-          let(:params) {{
-            :simp_omni_environment => true
-          }}
-          it_behaves_like "a structured module"
-          it { is_expected.to contain_exec('Create Local Bolt Home').with_command('mkdir -p /var/local/simp_bolt') }
-          it { is_expected.to create_file('/var/local/simp_bolt/puppetlabs/bolt') }
-          it { is_expected.to create_file('/var/local/simp_bolt/puppetlabs/bolt/bolt.yaml').with_content(%r{#{modulepath}}) }
-          it { is_expected.to create_file('/var/local/simp_bolt/puppetlabs/bolt/bolt.yaml').with_content(%r{tty: true}) }
-          it { is_expected.to create_file('/var/local/simp_bolt/puppetlabs/bolt/data') }
-          it { is_expected.to create_file('/var/local/simp_bolt/puppetlabs/bolt/hiera.yaml') }
-          it { is_expected.to create_file('/var/local/simp_bolt/puppetlabs/bolt/analytics.yaml') }
-          it { is_expected.to create_file_line('analytics_yaml').with_line('disabled: true') }
-          it { is_expected.to contain_exec('Create Bolt Log Dir').with_command('mkdir -p /var/log/puppetlabs/bolt') }
-          it { is_expected.not_to create_file('/var/log/puppetlabs/bolt') }
-        end
-
-        context 'with a simp omni-environment and environment paths specified' do
-          let(:modulepath) {
-            '^modulepath: modules:site\-modules:site:\/var\/simp\/environments\/production\/site_files:\$basemodulepath$'
-          }
-          let(:params) {{
-            :simp_omni_environment => true,
-            :simp_environment_name => 'production',
-            :puppet_env_path       => '/etc/puppetlabs/code/environments',
-            :secondary_env_path    => '/var/simp/environments',
-            :writable_env_path     => '/opt/puppetlabs/puppet/cache/simp/environments'
-          }}
-          it_behaves_like "a structured module"
-          it { is_expected.to contain_exec('Create Local Bolt Home').with_command('mkdir -p /var/local/simp_bolt') }
-          it { is_expected.to create_file('/etc/puppetlabs/code/environments/production') }
-          it { is_expected.to create_file('/etc/puppetlabs/code/environments/production/bolt.yaml').with_content(%r{#{modulepath}}) }
-          it { is_expected.to create_file('/etc/puppetlabs/code/environments/production/bolt.yaml').with_content(%r{tty: true}) }
-          it { is_expected.to create_file('/etc/puppetlabs/code/environments/production/data') }
-          it { is_expected.to create_file('/etc/puppetlabs/code/environments/production/hiera.yaml') }
-          it { is_expected.to create_file('/etc/puppetlabs/code/environments/production/analytics.yaml') }
-          it { is_expected.to create_file_line('analytics_yaml').with_line('disabled: true') }
-          it { is_expected.to contain_exec('Create Bolt Log Dir').with_command('mkdir -p /var/log/puppetlabs/bolt') }
-          it { is_expected.not_to create_file('/var/log/puppetlabs/bolt') }
-        end
-
         context 'with a config hash' do
           let(:header){
             <<-EOM
