@@ -1,8 +1,5 @@
-* Fri Oct 11 2019 Michael Morrone <michael.morrone@onyxpoint.com> - 0.2.0
+* Wed Oct 16 2019 Michael Morrone <michael.morrone@onyxpoint.com> - 0.2.0
 - Added acceptance test to apply SIMP via Bolt
-
-* Mon Sep 23 2019 Michael Morrone <michael.morrone@onyxpoint.com> - 0.2.0
-- Configured Bolt to utilize a SIMP Omni-Environment.
 - Configured Bolt to request a pseudo TTY for SSH sessions if specified.
 - Configured new logs to be appended to the log file instead of overwriting.
 - Updated spec tests.

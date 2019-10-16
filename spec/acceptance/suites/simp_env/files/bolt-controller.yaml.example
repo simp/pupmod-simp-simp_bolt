@@ -2,5 +2,4 @@
 simp_bolt::bolt_controller: true
 simp_bolt::controller::local_user_name: 'vagrant'
 simp_bolt::controller::local_user_home: '/home/vagrant'
-simp_bolt::controller::config::simp_omni_environment: true
-simp_bolt::controller::config::simp_environment_name: 'bolt'
+simp_bolt::controller::config::module_path: "modules:site-modules:site:${simp_bolt::config::local_home}/secondary/bolt/site_files:\$basemodulepath"

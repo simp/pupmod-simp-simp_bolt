@@ -155,46 +155,6 @@ $home directory for the account specified in the user.pp manifest.
 
 Default value: pick(getvar(simp_bolt::controller::local_user_home), '/var/local/simp_bolt')
 
-##### `simp_omni_environment`
-
-Data type: `Boolean`
-
-Use the SIMP Omni-Environment.
-
-Default value: `false`
-
-##### `simp_environment_name`
-
-Data type: `Optional[String[1]]`
-
-The name of the SIMP Omni-Environment to use.
-
-Default value: 'bolt'
-
-##### `puppet_env_path`
-
-Data type: `Optional[Stdlib::Unixpath]`
-
-The path to the Puppet environment in the SIMP Omni-Environment.
-
-Default value: `undef`
-
-##### `secondary_env_path`
-
-Data type: `Optional[Stdlib::Unixpath]`
-
-The path to the secondary environment in the SIMP Omni-Environment.
-
-Default value: `undef`
-
-##### `writable_env_path`
-
-Data type: `Optional[Stdlib::Unixpath]`
-
-The path to the writable environment in the SIMP Omni-Environment.
-
-Default value: `undef`
-
 ##### `config_hash`
 
 Data type: `Optional[Hash]`
@@ -319,7 +279,7 @@ Data type: `Boolean`
 
 Request a pseudo TTY on nodes that support it. By default in Bolt this is false.
 
-Default value: $simp_omni_environment
+Default value: `true`
 
 ##### `transport_options`
 
@@ -331,13 +291,13 @@ without any error checking of key/value pairs.
 You must have settings specified for the ``$default_transport``
 
 Default value: {
-                                                               'ssh' => {
-                                                                 'tmpdir' => $simp_bolt::target_user_home,
-                                                                 'user'   => $simp_bolt::target_user_name,
-                                                                 'run-as' => getvar(simp_bolt::target_sudo_user),
-                                                                 'tty'    => $tty
-                                                               }.delete_undef_values
-                                                             }
+                                                              'ssh' => {
+                                                                'tmpdir' => $simp_bolt::target_user_home,
+                                                                'user'   => $simp_bolt::target_user_name,
+                                                                'run-as' => getvar(simp_bolt::target_sudo_user),
+                                                                'tty'    => $tty
+                                                              }.delete_undef_values
+                                                            }
 
 ### simp_bolt::controller::install
 
