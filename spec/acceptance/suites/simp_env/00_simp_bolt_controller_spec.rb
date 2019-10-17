@@ -68,7 +68,6 @@ describe 'Install SIMP via Bolt' do
       on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && mkdir modules\"")
       rsync_to(bolt_controller, "#{source_module}", bolt_module)
       on(bolt_controller, "chown -R vagrant #{bolt_module}")
-require 'pry'; binding.pry
       # Create Puppetfiles and install modules
       on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && simp puppetfile generate -s > Puppetfile\"")
       on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && simp puppetfile generate > Puppetfile.simp\"")

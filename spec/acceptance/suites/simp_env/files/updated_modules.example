@@ -1,4 +1,4 @@
-# This prevents the simp-simp_bolt module from being erased or overwritten 
+# This is version under test installed via rsync
 mod 'simp-simp_bolt',
   :local => true
 
