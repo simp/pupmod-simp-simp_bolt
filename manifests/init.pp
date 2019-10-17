@@ -1,4 +1,4 @@
-# @summary Installs and configures Puppet Bolt for use within the SIMP enviroment
+# @summary Installs and configures Puppet Bolt for use within the SIMP environment
 #
 # This class will not do anything on the target system by default. You must
 # opt-in to adding either the controller or the target configuration.

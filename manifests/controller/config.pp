@@ -5,17 +5,17 @@
 # Addtional details on the options can be found at
 # https://puppet.com/docs/bolt/latest/bolt_configuration_options.html.
 #
+# @param local_user
+#   The local account to be used for running Bolt. The default is the $username account specified
+#   in the user.pp manifest.
+#
 # @param local_group
 #   The local group to be used for file permissions associated with the local_user account. The
 #   default is the $username account specified in the user.pp manifest.
 #
-# @param local_user_home
+# @param local_home
 #   The home directory of the local account to be used for running Bolt. The default is the
 #   $home directory for the account specified in the user.pp manifest.
-#
-# @param local_user
-#   The local account to be used for running Bolt. The default is the $username account specified
-#   in the user.pp manifest.
 #
 # @param config_hash
 #   If specified, will be passed to the ``to_yaml`` function and output at the
@@ -70,7 +70,10 @@
 #   By default, in Bolt, this is "modules:site-modules:site" within the Bolt project directory
 #   in `~/.puppetlabs/bolt`.
 #
-# @params transport_options
+# @param tty
+#   Request a pseudo TTY on nodes that support it. By default in Bolt this is false.
+#
+# @param transport_options
 #   A Hash of transport options that will be added to the configuration file
 #   without any error checking of key/value pairs.
 #
@@ -78,35 +81,37 @@
 #
 class simp_bolt::controller::config (
   # Local Target Directory Options
-  Optional[String[1]]              $local_user         = getvar(simp_bolt::controller::local_user_name),
-  Optional[String[1]]              $local_group        = getvar(simp_bolt::controller::local_group_name),
-  Stdlib::Unixpath                 $local_home         = pick(getvar(simp_bolt::controller::local_user_home), '/var/local/simp_bolt'),
+  Optional[String[1]]              $local_user        = getvar(simp_bolt::controller::local_user_name),
+  Optional[String[1]]              $local_group       = getvar(simp_bolt::controller::local_group_name),
+  Stdlib::Unixpath                 $local_home        = pick(getvar(simp_bolt::controller::local_user_home), '/var/local/simp_bolt'),
 
   # Config File Specification
-  Optional[Hash]                   $config_hash        = undef,
+  Optional[Hash]                   $config_hash       = undef,
 
   # Global Bolt Options
-  Boolean                          $color              = true,
-  Optional[Integer[0]]             $concurrency        = undef,
-  Simp_bolt::Transport             $default_transport  = 'ssh',
-  Boolean                          $disable_analytics  = true,
-  Optional[Enum['human','json']]   $format             = undef,
-  Optional[String[1]]              $hiera_config       = undef,
-  Optional[String[1]]              $inventoryfile      = undef,
-  Simp_bolt::LogLevel              $log_console_level  = 'info',
-  Boolean                          $log_file_append    = false,
-  Simp_bolt::LogLevel              $log_file_level     = 'info',
-  Stdlib::Unixpath                 $log_file           = '/var/log/puppetlabs/bolt/bolt.log',
-  Optional[String[1]]              $modulepath         = undef,
+  Boolean                          $color             = true,
+  Optional[Integer[0]]             $concurrency       = undef,
+  Simp_bolt::Transport             $default_transport = 'ssh',
+  Boolean                          $disable_analytics = true,
+  Optional[Enum['human','json']]   $format            = undef,
+  Optional[String[1]]              $hiera_config      = undef,
+  Optional[String[1]]              $inventoryfile     = undef,
+  Simp_bolt::LogLevel              $log_console_level = 'info',
+  Stdlib::Unixpath                 $log_file          = '/var/log/puppetlabs/bolt/bolt.log',
+  Simp_bolt::LogLevel              $log_file_level    = 'info',
+  Boolean                          $log_file_append   = true,
+  Optional[String[1]]              $modulepath        = undef,
 
   # Overall Transport Options
-  Hash[Simp_bolt::Transport, Hash] $transport_options  = {
-                                                            'ssh' => {
-                                                              'tmpdir' => $simp_bolt::target_user_home,
-                                                              'user'   => $simp_bolt::target_user_name,
-                                                              'run-as' => getvar(simp_bolt::target_sudo_user)
-                                                            }.delete_undef_values
-                                                          }
+  Boolean                          $tty               = true,
+  Hash[Simp_bolt::Transport, Hash] $transport_options = {
+                                                          'ssh' => {
+                                                            'tmpdir' => $simp_bolt::target_user_home,
+                                                            'user'   => $simp_bolt::target_user_name,
+                                                            'run-as' => getvar(simp_bolt::target_sudo_user),
+                                                            'tty'    => $tty
+                                                          }.delete_undef_values
+                                                        }
 ){
   assert_private()
 
@@ -130,6 +135,7 @@ class simp_bolt::controller::config (
   }
 
   $_bolt_dir = "${_puppet_dir}/bolt"
+  $_modulepath = $modulepath
 
   exec { 'Create Local Bolt Home':
     command => "mkdir -p ${local_home}",
@@ -147,10 +153,11 @@ class simp_bolt::controller::config (
   }
 
   file { $_bolt_dir:
-    ensure => 'directory',
-    owner  => $_local_user,
-    group  => $_local_group,
-    mode   => $_bolt_dir_mode
+    ensure  => 'directory',
+    owner   => $_local_user,
+    group   => $_local_group,
+    mode    => $_bolt_dir_mode,
+    recurse => true
   }
 
   # Create the config file for bolt
@@ -159,7 +166,9 @@ class simp_bolt::controller::config (
     owner   => $_local_user,
     group   => $_local_group,
     mode    => $_bolt_dir_mode,
-    content => epp("${module_name}/bolt_yaml.epp", {
+    content => epp(
+      "${module_name}/bolt_yaml.epp",
+      {
         config_hash       => $config_hash,
         color             => $color,
         concurrency       => $concurrency,
@@ -171,7 +180,7 @@ class simp_bolt::controller::config (
         log_file_append   => $log_file_append,
         log_file_level    => $log_file_level,
         log_file          => $log_file,
-        modulepath        => $modulepath,
+        modulepath        => $_modulepath,
         transport_options => $transport_options
       }
     )

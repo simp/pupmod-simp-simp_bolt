@@ -20,7 +20,7 @@
 # @param gid
 #   The GID of the user
 #
-# @param ssh_authorized_key
+# @param ssh_authorized_keys
 #   The SSH public key for the user
 #
 #   * See the native ``ssh_authorized_key`` resource definition for details
@@ -30,7 +30,7 @@
 #
 #   * See the native ``ssh_authorized_key`` resource definition for details
 #
-# @param sudo_users
+# @param sudo_user
 #   The users that the ``username`` user may escalate to
 #
 # @param sudo_password_required

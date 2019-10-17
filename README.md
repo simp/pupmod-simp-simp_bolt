@@ -38,10 +38,10 @@ specified on both controllers and target systems to be managed with Bolt.
 
 Bolt is an open source task runner developed by Puppet that permits automation
 on an as-needed basis. This means that all actions are initiated from the Bolt
-server, eliminating reliance upon remote agent software for task execution.
+controller, eliminating reliance upon remote agent software for task execution.
 More complex tasks can be implemented using Puppet modules, which does require
 the installation of an agent for executions, but all tasks are still initiated
-from the Bolt server.
+from the Bolt controller.
 
 See [REFERENCE.md](REFERENCE.md) for more details.
 
@@ -121,14 +121,14 @@ remote systems. Both can be specified in Hiera.  Passwords should be in
 
 ```yaml
 simp_bolt::user::password: '$6$0BVLUF[...]16OtkdiY1'
-simp_bolt::user::ssh_authorized_key: 'AAAAB3Nza[...]qXfdaQ=='
+simp_bolt::user::ssh_authorized_keys: 'AAAAB3Nza[...]qXfdaQ=='
 ```
 
 ## Usage
 
 Once the `simp_bolt` module has been applied to a server and one or more target
 systems, Bolt is ready for use. All commands provided assume you have changed
-users to the appropriate account using `su` on the Bolt server system.
+users to the appropriate account using `su` on the Bolt controller system.
 Entering the command `bolt` by itself will display the help information.
 
 To run a remote command, `su` to the bolt user and execute
