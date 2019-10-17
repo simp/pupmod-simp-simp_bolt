@@ -166,20 +166,22 @@ class simp_bolt::controller::config (
     owner   => $_local_user,
     group   => $_local_group,
     mode    => $_bolt_dir_mode,
-    content => epp("${module_name}/bolt_yaml.epp", {
-      config_hash       => $config_hash,
-      color             => $color,
-      concurrency       => $concurrency,
-      default_transport => $default_transport,
-      format            => $format,
-      hiera_config      => $hiera_config,
-      inventoryfile     => $inventoryfile,
-      log_console_level => $log_console_level,
-      log_file_append   => $log_file_append,
-      log_file_level    => $log_file_level,
-      log_file          => $log_file,
-      modulepath        => $_modulepath,
-      transport_options => $transport_options
+    content => epp(
+      "${module_name}/bolt_yaml.epp",
+      {
+        config_hash       => $config_hash,
+        color             => $color,
+        concurrency       => $concurrency,
+        default_transport => $default_transport,
+        format            => $format,
+        hiera_config      => $hiera_config,
+        inventoryfile     => $inventoryfile,
+        log_console_level => $log_console_level,
+        log_file_append   => $log_file_append,
+        log_file_level    => $log_file_level,
+        log_file          => $log_file,
+        modulepath        => $_modulepath,
+        transport_options => $transport_options
       }
     )
   }
