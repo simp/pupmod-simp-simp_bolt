@@ -39,6 +39,8 @@ describe 'Install SIMP via Bolt' do
     let(:bolt_dir) { '/home/vagrant/.puppetlabs/bolt' }
     let(:sec_dir) { '/home/vagrant/secondary' }
     let(:ca_dir) { "#{sec_dir}/bolt/FakeCA" }
+    let(:source_module) { 'spec/fixtures/modules/simp_bolt/' }
+    let(:bolt_module) { "#{bolt_dir}/modules/simp_bolt" }
     let(:hiera_dir) { "#{bolt_dir}/data" }
     let(:hosts_dir) { "#{hiera_dir}/hosts" }
     let(:prune_command) { "grep ^mod #{bolt_dir}/Puppetfile| while read mod; do sed -i \"/$mod/,+3d\" #{bolt_dir}/Puppetfile.simp; done" }
@@ -62,6 +64,11 @@ describe 'Install SIMP via Bolt' do
       create_remote_file(bolt_controller, "#{ca_dir}/togen", togen.join("\n"))
       # Allowing exit code 1 because gencerts_nopass.sh tries to chown files, which vagrant user cannot perform
       on(bolt_controller, "#{run_cmd} \"cd #{ca_dir} && ./gencerts_nopass.sh auto\"", :acceptable_exit_codes => [1])
+      # Copy simp_bolt module to bolt_controller
+      on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && mkdir modules\"")
+      rsync_to(bolt_controller, "#{source_module}", bolt_module)
+      on(bolt_controller, "chown -R vagrant #{bolt_module}")
+require 'pry'; binding.pry
       # Create Puppetfiles and install modules
       on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && simp puppetfile generate -s > Puppetfile\"")
       on(bolt_controller, "#{run_cmd} \"cd #{bolt_dir} && simp puppetfile generate > Puppetfile.simp\"")

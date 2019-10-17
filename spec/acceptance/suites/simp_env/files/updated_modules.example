@@ -1,7 +1,6 @@
-# Remove when pupmod-simp-simp_bolt-0.2.0 is released
+# This prevents the simp-simp_bolt module from being erased or overwritten 
 mod 'simp-simp_bolt',
-  :git    => 'https://github.com/m-morrone/pupmod-simp-simp_bolt',
-  :branch => 'SIMP-7108'
+  :local => true
 
 # Remove when pupmod-simp-simp_options-1.4.0 is released
 mod 'simp-simp_options',
