@@ -81,37 +81,37 @@
 #
 class simp_bolt::controller::config (
   # Local Target Directory Options
-  Optional[String[1]]              $local_user            = getvar(simp_bolt::controller::local_user_name),
-  Optional[String[1]]              $local_group           = getvar(simp_bolt::controller::local_group_name),
-  Stdlib::Unixpath                 $local_home            = pick(getvar(simp_bolt::controller::local_user_home), '/var/local/simp_bolt'),
+  Optional[String[1]]              $local_user        = getvar(simp_bolt::controller::local_user_name),
+  Optional[String[1]]              $local_group       = getvar(simp_bolt::controller::local_group_name),
+  Stdlib::Unixpath                 $local_home        = pick(getvar(simp_bolt::controller::local_user_home), '/var/local/simp_bolt'),
 
   # Config File Specification
-  Optional[Hash]                   $config_hash           = undef,
+  Optional[Hash]                   $config_hash       = undef,
 
   # Global Bolt Options
-  Boolean                          $color                 = true,
-  Optional[Integer[0]]             $concurrency           = undef,
-  Simp_bolt::Transport             $default_transport     = 'ssh',
-  Boolean                          $disable_analytics     = true,
-  Optional[Enum['human','json']]   $format                = undef,
-  Optional[String[1]]              $hiera_config          = undef,
-  Optional[String[1]]              $inventoryfile         = undef,
-  Simp_bolt::LogLevel              $log_console_level     = 'info',
-  Stdlib::Unixpath                 $log_file              = '/var/log/puppetlabs/bolt/bolt.log',
-  Simp_bolt::LogLevel              $log_file_level        = 'info',
-  Boolean                          $log_file_append       = true,
-  Optional[String[1]]              $modulepath            = undef,
+  Boolean                          $color             = true,
+  Optional[Integer[0]]             $concurrency       = undef,
+  Simp_bolt::Transport             $default_transport = 'ssh',
+  Boolean                          $disable_analytics = true,
+  Optional[Enum['human','json']]   $format            = undef,
+  Optional[String[1]]              $hiera_config      = undef,
+  Optional[String[1]]              $inventoryfile     = undef,
+  Simp_bolt::LogLevel              $log_console_level = 'info',
+  Stdlib::Unixpath                 $log_file          = '/var/log/puppetlabs/bolt/bolt.log',
+  Simp_bolt::LogLevel              $log_file_level    = 'info',
+  Boolean                          $log_file_append   = true,
+  Optional[String[1]]              $modulepath        = undef,
 
   # Overall Transport Options
-  Boolean                          $tty                   = true,
-  Hash[Simp_bolt::Transport, Hash] $transport_options     = {
-                                                              'ssh' => {
-                                                                'tmpdir' => $simp_bolt::target_user_home,
-                                                                'user'   => $simp_bolt::target_user_name,
-                                                                'run-as' => getvar(simp_bolt::target_sudo_user),
-                                                                'tty'    => $tty
-                                                              }.delete_undef_values
-                                                            }
+  Boolean                          $tty               = true,
+  Hash[Simp_bolt::Transport, Hash] $transport_options = {
+                                                          'ssh' => {
+                                                            'tmpdir' => $simp_bolt::target_user_home,
+                                                            'user'   => $simp_bolt::target_user_name,
+                                                            'run-as' => getvar(simp_bolt::target_sudo_user),
+                                                            'tty'    => $tty
+                                                          }.delete_undef_values
+                                                        }
 ){
   assert_private()
 
@@ -166,7 +166,9 @@ class simp_bolt::controller::config (
     owner   => $_local_user,
     group   => $_local_group,
     mode    => $_bolt_dir_mode,
-    content => epp("${module_name}/bolt_yaml.epp", {
+    content => epp(
+      "${module_name}/bolt_yaml.epp",
+      {
         config_hash       => $config_hash,
         color             => $color,
         concurrency       => $concurrency,
