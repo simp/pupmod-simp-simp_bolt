@@ -25,9 +25,9 @@ describe 'Install SIMP via Bolt' do
     # Install SIMP and Bolt
     it 'should install SIMP and Bolt rpms' do
       bolt_controller = only_host_with_role(hosts, 'boltserver')
-      on(bolt_controller, 'curl -s https://packagecloud.io/install/repositories/simp-project/6_X/script.rpm.sh | sudo bash')
-      on(bolt_controller, 'curl -s https://packagecloud.io/install/repositories/simp-project/6_X_Dependencies/script.rpm.sh | sudo bash')
-      on(bolt_controller, 'rpm -Uvh https://yum.puppet.com/puppet-tools-release-el-7.noarch.rpm')
+      install_internet_simp_repo(bolt_controller, '6_X', :main)
+      install_internet_simp_repo(bolt_controller, '6_X', :deps)
+      install_puppet_repo(bolt_controller)
       on(bolt_controller, 'yum install -y simp puppet-bolt')
       # This next step is only required until permisions on SIMP modules are changed
       on(bolt_controller, 'chmod -R o+rX /usr/share/simp/modules')
@@ -47,7 +47,7 @@ describe 'Install SIMP via Bolt' do
 
     it 'should set up the SIMP and Bolt environments' do
       bolt_controller = only_host_with_role(hosts, 'boltserver')
-      # Create Boltdir
+      # Create Boltdir by executing a Bolt command
       # Allowing exit code 1 because of Bolt analytics warning 
       on(bolt_controller, "#{run_cmd} 'bolt puppetfile show-modules 2>&1'", :acceptable_exit_codes => [1])
       # Create the secondary environment directory
@@ -86,7 +86,7 @@ describe 'Install SIMP via Bolt' do
       scp_to(bolt_controller, File.join(files_dir, 'bolt.pp.example'), "#{bolt_dir}/manifests/bolt.pp")
       scp_to(bolt_controller, File.join(files_dir, 'default.yaml.example'), "#{hiera_dir}/default.yaml")
       scp_to(bolt_controller, File.join(files_dir, 'bolt-controller.yaml.example'), "#{hosts_dir}/bolt-controller.yaml")
-      ipaddr = on(bolt_controller, "hostname -I|hostname -I|sed -e 's/\s/,/g'").stdout.strip
+      ipaddr = on(bolt_controller, "hostname -I|sed -e 's/\s/,/g'").stdout.strip
       hosts_with_role( hosts, 'target' ).each do |host|
         on(bolt_controller, "#{run_cmd} \"touch #{hosts_dir}/#{host.name}.yaml\"")
         scp_to(bolt_controller, File.join(files_dir, 'target.yaml.example'), "#{hosts_dir}/#{host.name}.yaml")

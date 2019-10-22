@@ -15,10 +15,6 @@ module Acceptance
           on(host, "gem install json_pure --version '<2.0.0'")
         end
       end
-
-      def uninstall_system_factor_gem(host)
-        on(host, '/usr/bin/gem uninstall facter', :accept_all_exit_codes => true)
-      end
     end
   end
 end
