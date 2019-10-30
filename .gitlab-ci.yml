@@ -193,3 +193,10 @@ pup6-fips:
   <<: *acceptance_base
   script:
     - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,default]'
+
+bolt:
+  <<: *pup_5
+  <<: *acceptance_base
+  script:
+    - 'bundle exec rake beaker:suites[simp_env,default]'
+

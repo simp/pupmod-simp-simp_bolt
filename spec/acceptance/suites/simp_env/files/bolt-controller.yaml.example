@@ -1,0 +1,5 @@
+---
+simp_bolt::bolt_controller: true
+simp_bolt::controller::local_user_name: 'vagrant'
+simp_bolt::controller::local_user_home: '/home/vagrant'
+simp_bolt::controller::config::modulepath: "modules:site-modules:site:%{simp_bolt::controller::local_user_home}/secondary/bolt/site_files:$basemodulepath"

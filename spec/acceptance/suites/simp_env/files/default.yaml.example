@@ -1,0 +1,22 @@
+---
+simp::puppet_server_hosts_entry: false
+simp::classes:
+  - '--clamav'
+sudo::user_specifications:
+  vagrant_su:
+    user_list:
+    - vagrant
+    cmnd:
+    - ALL
+    passwd: false
+pam::access::users:
+  vagrant:
+    origins:
+    - ALL
+vox_selinux::module_build_root: /var/local/puppet-selinux
+yum::managed_repos:
+    - 'epel'
+classes:
+  - 'simp_bolt'
+  - 'yum'
+  - 'simp::yum::repo::internet_simp_dependencies'

@@ -1,0 +1,5 @@
+---
+simp_bolt::bolt_target: true
+simp_bolt::target::create_user: true
+simp_bolt::target::user_password: '$6$0BVLUFTByfXbi4$OkGTJrGMkhr44IUHpWKss94af63UoLH3qab9Oikzj6GnscLPV18oKEDIIb3lYDAEI7bw7nYeJKzWc16OtkdiY1'
+simp_bolt::target::user_allowed_from: [bolt-controller,LOCAL]
