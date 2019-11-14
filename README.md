@@ -147,6 +147,10 @@ path to their parent directory in Hiera:
 simp_bolt::config::modulepath: /path/to/modules
 ```
 
+To install `puppet-agent` on target nodes via `Bolt`, utilize the included `puppet-agent`
+install plan and execute
+`bolt plan run simp_bolt::painstall --nodes <NODE NAME(S)> --password --sudo-password`.
+
 To apply an existing manifest, `su` to the bolt user and execute
 `bolt apply <manifest> --nodes <NODE NAME(S)> --password --sudo-password`.
 
