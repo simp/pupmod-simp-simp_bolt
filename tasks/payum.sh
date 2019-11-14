@@ -1,8 +1,12 @@
 #!/bin/sh
 
+# This script checks if a specified or more recent version of
+# puppet-agent is available via yum.
+
+# Check for specified version
 yum --showduplicates list puppet-agent-${PT_version} >/dev/null 2>&1
 if [ $? = 0 ]; then
-  # Check for specified version and return if available
+  # Return specified version
   echo -n "$PT_version"
 else
   # Determine most recent puppet-agent version
