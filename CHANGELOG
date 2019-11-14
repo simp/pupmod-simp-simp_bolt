@@ -1,3 +1,6 @@
+* Thu Nov 14 2019 Michael Morrone <michael.morrone@onyxpoint.com> - 0.2.0
+- Added plan to install puppet-agent on target nodes.
+
 * Thu Oct 17 2019 Michael Morrone <michael.morrone@onyxpoint.com> - 0.2.0
 - Added acceptance test to apply SIMP via Bolt
 - Configured Bolt to request a pseudo TTY for SSH sessions if specified.
