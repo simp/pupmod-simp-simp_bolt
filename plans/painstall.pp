@@ -53,14 +53,12 @@ plan simp_bolt::painstall (
     $rpm_rel_subset = $yum_no_rel_subset.map |$result| { $result.target }
     # No need to check for rpm if yum is sufficient
     if !empty($rpm_rel_subset) {
-#      # file::exists should return boolean for currently returns Undef
-#      # patched in next release of bolt (1.38) so commenting out for now
-#      if file::exists("simp_bolt/puppet-agent-${agent_version}.el${r}.x86_64.rpm") {
+      if file::exists("simp_bolt/puppet-agent-${agent_version}.el${r}.x86_64.rpm") {
         upload_file("simp_bolt/puppet-agent-${agent_version}.el${r}.x86_64.rpm", "/var/local/puppet-agent-${agent_version}.el${r}.x86_64.rpm", $rpm_rel_subset)
         run_command("yum localinstall -y /var/local/puppet-agent-${agent_version}.el${r}.x86_64.rpm", $rpm_rel_subset)
-#      } else {
-#        out::message("no puppet-agent is available for $rpm_rel_subset")
-#      }
+      } else {
+        out::message("no puppet-agent is available for $rpm_rel_subset")
+      }
     }
 
     # For updates 
@@ -89,13 +87,12 @@ plan simp_bolt::painstall (
         $rpm_update_subset = $yum_no_subset.map |$result| { $result.target }
         # No need to check for rpm if yum is sufficient
         if !empty($rpm_update_subset) {
-#          # see file::exists comment above
-#          if file::exists("simp_bolt/puppet-agent-${agent_version}.el${r}.x86_64.rpm") {
+          if file::exists("simp_bolt/puppet-agent-${agent_version}.el${r}.x86_64.rpm") {
             upload_file("simp_bolt/puppet-agent-${agent_version}.el${r}.x86_64.rpm", "/var/local/puppet-agent-${agent_version}.el${r}.x86_64.rpm", $rpm_update_subset)
             run_command("yum localinstall -y /var/local/puppet-agent-${agent_version}.el${r}.x86_64.rpm", $rpm_update_subset)
-#          } else {
-#            out::message("no puppet-agent is available for update on $rpm_update_subset")
-#          }
+          } else {
+            out::message("no puppet-agent is available for update on $rpm_update_subset")
+          }
         }
       } else {
         out::message("$update_subset require updates but the update parameter is false")
