@@ -74,7 +74,7 @@ simp_bolt::controller::local_user_home: /var/local/simp_bolt
 
       hosts.each do |host|
         it "should execute a command on #{host.name} system via bolt" do
-          bolt_cmd="bolt command run '#{bolt_remote_cmd}' --nodes #{host.name} --no-host-key-check --sudo-password password"
+          bolt_cmd="bolt command run '#{bolt_remote_cmd}' -t #{host.name} --no-host-key-check --sudo-password password"
           on(_boltserver, "#{run_cmd} \"#{bolt_cmd}\"")
           host.file_exist?("/var/local/#{_boltserver}")
         end

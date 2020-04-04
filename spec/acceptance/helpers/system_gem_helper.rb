@@ -4,7 +4,7 @@ module Acceptance
 
       def install_system_factor_gem(host)
         host.install_package('rubygems')
-        on(host, '/usr/bin/gem install facter')
+        on(host, %(/usr/bin/gem install facter --version '< 4.0.0'))
 
         # beaker-helper fact_on() now uses '--json' on facter calls, so
         # we need to make sure the json gem is installed
