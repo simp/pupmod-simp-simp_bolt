@@ -1,3 +1,8 @@
 This suite is intended to install Bolt then test Bolt by installing the
 hirs_provisioner module on target systems.  To run the tests, execute:
 ``bundle exec rake beaker:suites[with_hirs]``
+
+As of 4/7/2020 HIRS  will not run on EL8.  It needs to be, at the very
+least, recompiled in EL8.  So the nodeset for this test does not
+include and EL8 client.
+

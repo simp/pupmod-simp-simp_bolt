@@ -1,3 +1,6 @@
+* Thu Apr 09 2020 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 0.3.0
+- Added EL8 support
+
 * Thu Nov 14 2019 Michael Morrone <michael.morrone@onyxpoint.com> - 0.2.0
 - Added plan to install puppet-agent on target nodes.
 

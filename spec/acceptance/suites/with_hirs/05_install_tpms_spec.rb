@@ -51,7 +51,7 @@ describe 'install tpm_simulators' do
       [tpm2_status['ownerAuthSet'],tpm2_status['endorsementAuthSet'],tpm2_status['lockoutAuthSet']]
   end
 
-  # starts tpm 1.2 simulator services 
+  # starts tpm 1.2 simulator services
   # Per the README file included with the source code, procedures for starting the tpm are:
   #   Start the TPM in another shell after setting its environment variables
   #     (TPM_PATH,TPM_PORT)
