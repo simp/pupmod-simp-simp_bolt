@@ -26,7 +26,7 @@ plan simp_bolt::painstall (
   $update_subset = $need_update.map |$result| { $result.target }
   $ver_upd_results = run_task('facts', $update_subset)
 
-  $r = ['6','7']
+  $r = ['7']
   $r.each |$r| {
     # For new installs
     $rel_installs = $ver_inst_results.filter |$result| { $result['os']['release']['major'] == "${r}" }
@@ -61,7 +61,7 @@ plan simp_bolt::painstall (
       }
     }
 
-    # For updates 
+    # For updates
     $rel_updates = $ver_upd_results.filter |$result| { $result['os']['release']['major'] == "${r}" }
     $update_rel_subset = $rel_updates.map |$result| { $result.target }
     if !empty($update_rel_subset) {
