@@ -21,8 +21,6 @@ module Acceptance
 
           if host.host_hash[:platform] =~ /el-7/
             family = 'el-7'
-          elsif host.host_hash[:platform] =~ /el-6/
-            family = 'el-6'
           elsif host.host_hash[:platform] =~ /el-8/
             family = 'el-8'
           else
