@@ -1,52 +1,35 @@
-<%
-  if ENV['BEAKER_HYPERVISOR']
-    hypervisor = ENV['BEAKER_HYPERVISOR']
-  else
-    hypervisor = 'vagrant'
-  end
-
-  case ENV['SIMP_BEAKER_OS']
-  when /centos/ || /^el/
-    box_6 = 'centos/6'
-    box_7 = 'centos/7'
-    box_8 = 'centos/8'
-  when /oracle/ || /^oel/
-    box_6 = 'onyxpoint/oel-6-x86_64'
-    box_7 = 'generic/oracle7'
-    box_8 = 'generic/oracle8'
-  else
-    box_6 = 'centos/6'
-    box_7 = 'centos/7'
-    box_8 = 'centos/8'
-  end
--%>
+---
 HOSTS:
   bolt-controller:
     roles:
-      - default
-      - boltserver
-    platform:   el-7-x86_64
-    box:        <%= box_7 %>
-    hypervisor: <%= hypervisor %>
+    - default
+    - boltserver
+    platform: el-7-x86_64
+    box: centos/7
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
     vagrant_memsize: 4608
     vagrant_cpus: 2
+    family: centos-cloud/centos-7
+    gce_machine_type: n1-standard-2
   target-el8:
     roles:
-      - target
-    platform:   el-8-x86_64
-    box:        <%= box_8 %>
-    hypervisor: <%= hypervisor %>
+    - target
+    platform: el-8-x86_64
+    box: centos/8
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
+    family: centos-cloud/centos-stream-8
+    gce_machine_type: n1-standard-2
   target-el7:
     roles:
-      - target
-    platform:   el-7-x86_64
-    box:        <%= box_7 %>
-    hypervisor: <%= hypervisor %>
+    - target
+    platform: el-7-x86_64
+    box: centos/7
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
+    family: centos-cloud/centos-7
+    gce_machine_type: n1-standard-2
 CONFIG:
   log_level: verbose
   type: aio
   vagrant_memsize: 256
   synced_folder: disabled
-<% if ENV['BEAKER_PUPPET_COLLECTION'] -%>
-  puppet_collection: <%= ENV['BEAKER_PUPPET_COLLECTION'] %>
-<% end -%>
+  puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'puppet7') %>"
