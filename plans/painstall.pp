@@ -22,14 +22,14 @@ plan simp_bolt::painstall (
 
   # Generate set of nodes that require a newer puppet agent
   $have_agent = $results.filter |$result| { $result[status] == 'installed' }
-  $need_update = $have_agent.filter |$result| { versioncmp($result[version], "${agent_version}") == -1 }
+  $need_update = $have_agent.filter |$result| { versioncmp($result[version], $agent_version) == -1 }
   $update_subset = $need_update.map |$result| { $result.target }
   $ver_upd_results = run_task('facts', $update_subset)
 
   $r = ['7']
   $r.each |$r| {
     # For new installs
-    $rel_installs = $ver_inst_results.filter |$result| { $result['os']['release']['major'] == "${r}" }
+    $rel_installs = $ver_inst_results.filter |$result| { $result['os']['release']['major'] == $r }
     $install_rel_subset = $rel_installs.map |$result| { $result.target }
 
     # Check existing repo for adequate version
@@ -62,7 +62,7 @@ plan simp_bolt::painstall (
     }
 
     # For updates
-    $rel_updates = $ver_upd_results.filter |$result| { $result['os']['release']['major'] == "${r}" }
+    $rel_updates = $ver_upd_results.filter |$result| { $result['os']['release']['major'] == $r }
     $update_rel_subset = $rel_updates.map |$result| { $result.target }
     if !empty($update_rel_subset) {
       if $update {
