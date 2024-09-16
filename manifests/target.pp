@@ -82,7 +82,7 @@ class simp_bolt::target (
   Boolean                    $user_sudo_password_required  = false,
   Array[String[1],1]         $user_sudo_commands           = ['ALL'],
   Array[String[1]]           $user_allowed_from            = [pick(fact('puppet_server'), 'LOCAL')],
-  Optional[Integer[1]]       $user_max_logins              = 2
+  Integer[1]                 $user_max_logins              = 2
 ) {
   assert_private()
 

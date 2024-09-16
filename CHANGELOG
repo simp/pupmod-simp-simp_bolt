@@ -1,3 +1,12 @@
+* Fri Sep 13 2024 Steven Pritchard <steve@sicura.us> - 0.4.0
+- Set baseline for puppetsync
+  - Update GHA workflows
+  - Update Gemfile
+  - Update module dependencies
+  - Support modern Puppet versions
+  - Use standard spec_helper.rb
+  - Fix lint errors
+
 * Wed Jan 13 2021 Chris Tessmer <chris.tessmer@onyxpoint.com> - 0.3.1
 - Removed EL6 from supported OSes
 
