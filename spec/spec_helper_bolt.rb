@@ -8,7 +8,6 @@ include Simp::BeakerHelpers
 include Acceptance::Helpers::SystemGemHelper
 include Acceptance::Helpers::RepoHelper
 
-
 unless ENV['BEAKER_provision'] == 'no'
   hosts.each do |host|
     # Temporarily install facter for beaker helpers fact_on() calls executed
