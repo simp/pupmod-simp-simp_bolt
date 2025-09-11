@@ -22,10 +22,10 @@ describe 'install tpm_simulators' do
   def config_abrmd_for_tpm2sim_on(hirs_host)
     on hirs_host, 'mkdir -p /etc/systemd/system/tpm2-abrmd.service.d'
     # Configure the TAB/RM to talk to the TPM2 simulator
-    extra_file = <<-SYSTEMD.gsub(%r{^\s*}, '')
-    [Service]
-    ExecStart=
-    ExecStart=/sbin/tpm2-abrmd -t socket
+    extra_file = <<~SYSTEMD
+      [Service]
+      ExecStart=
+      ExecStart=/sbin/tpm2-abrmd -t socket
     SYSTEMD
     create_remote_file hirs_host, '/etc/systemd/system/tpm2-abrmd.service.d/override.conf', extra_file
     on hirs_host, 'systemctl daemon-reload'

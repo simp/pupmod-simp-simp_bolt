@@ -11,10 +11,10 @@ describe 'simp_bolt' do
     on_supported_os.each do |os, os_facts|
       context "on #{os}" do
         let(:facts) do
-          os_facts.merge({
-                           puppet_server: 'puppet',
-          simplib__sshd_config: { 'authorizedkeysfile' => '.ssh/authorized_keys' }
-                         })
+          os_facts.merge(
+            puppet_server: 'puppet',
+            simplib__sshd_config: { 'authorizedkeysfile' => '.ssh/authorized_keys' },
+          )
         end
 
         context 'simp_bolt class without any parameters' do
@@ -26,7 +26,7 @@ describe 'simp_bolt' do
         context 'as a controller' do
           let(:params) do
             {
-              bolt_controller: true
+              bolt_controller: true,
             }
           end
 
@@ -38,7 +38,7 @@ describe 'simp_bolt' do
         context 'as a target' do
           let(:params) do
             {
-              bolt_target: true
+              bolt_target: true,
             }
           end
 
@@ -51,7 +51,7 @@ describe 'simp_bolt' do
           let(:params) do
             {
               bolt_controller: true,
-           bolt_target: true
+              bolt_target: true,
             }
           end
 

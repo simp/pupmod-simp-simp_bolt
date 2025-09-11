@@ -22,10 +22,6 @@ describe 'simp_bolt::target::user' do
           Puppet::Parser::Functions.newfunction(:assert_private, type: :rvalue) { |args| }
         end
 
-        let(:facts) do
-          os_facts
-        end
-
         # Requires variable set in init.pp, so including here
         let(:pre_condition) { 'include simp_bolt' }
 
@@ -33,27 +29,27 @@ describe 'simp_bolt::target::user' do
         let(:params) do
           {
             create: false,
-         username: 'simp_bolt',
-         password: :undef,
-         home: '/var/local/simp_bolt',
-         uid: 1779,
-         gid: 1779,
-         ssh_authorized_keys: :undef,
-         ssh_authorized_key_type: 'ssh-rsa',
-         sudo_user: 'root',
-         sudo_password_required: false,
-         sudo_commands: ['ALL'],
-         allowed_from: ['puppet_server'],
-         max_logins: 2
+            username: 'simp_bolt',
+            password: :undef,
+            home: '/var/local/simp_bolt',
+            uid: 1779,
+            gid: 1779,
+            ssh_authorized_keys: :undef,
+            ssh_authorized_key_type: 'ssh-rsa',
+            sudo_user: 'root',
+            sudo_password_required: false,
+            sudo_commands: ['ALL'],
+            allowed_from: ['puppet_server'],
+            max_logins: 2,
           }
         end
 
         let(:facts) do
-          os_facts.merge({
-                           'simplib__sshd_config' => {
-                             'AuthorizedKeysFile' => '.ssh/authorized_keys'
-                           }
-                         })
+          os_facts.merge(
+            'simplib__sshd_config' => {
+              'AuthorizedKeysFile' => '.ssh/authorized_keys',
+            },
+          )
         end
 
         context 'with create false' do
@@ -103,9 +99,9 @@ describe 'simp_bolt::target::user' do
           context 'and a password' do
             let(:params) do
               super().merge(
-              create: true,
-              password: 'password_hash',
-            )
+                create: true,
+                password: 'password_hash',
+              )
             end
 
             it_behaves_like 'a structured module'
@@ -115,9 +111,9 @@ describe 'simp_bolt::target::user' do
           context 'and a ssh_authorized_key' do
             let(:params) do
               super().merge(
-              create: true,
-              ssh_authorized_keys: ['ssh_authorized_key'],
-            )
+                create: true,
+                ssh_authorized_keys: ['ssh_authorized_key'],
+              )
             end
 
             it_behaves_like 'a structured module'
@@ -128,9 +124,9 @@ describe 'simp_bolt::target::user' do
           context 'and multiple ssh_authorized_keys' do
             let(:params) do
               super().merge(
-              create: true,
-              ssh_authorized_keys: ['ssh', 'authorized', 'key'],
-            )
+                create: true,
+                ssh_authorized_keys: ['ssh', 'authorized', 'key'],
+              )
             end
 
             it_behaves_like 'a structured module'
@@ -143,10 +139,10 @@ describe 'simp_bolt::target::user' do
           context 'and a password and a ssh_authorized_keys' do
             let(:params) do
               super().merge(
-              create: true,
-              password: 'password_hash',
-              ssh_authorized_keys: ['ssh_authorized_key'],
-            )
+                create: true,
+                password: 'password_hash',
+                ssh_authorized_keys: ['ssh_authorized_key'],
+              )
             end
 
             it_behaves_like 'a structured module'
@@ -157,9 +153,9 @@ describe 'simp_bolt::target::user' do
           context 'with allowed from multiple systems' do
             let(:params) do
               super().merge(
-              create: true,
-              allowed_from: ['system1', 'system2'],
-            )
+                create: true,
+                allowed_from: ['system1', 'system2'],
+              )
             end
 
             it_behaves_like 'a structured module'

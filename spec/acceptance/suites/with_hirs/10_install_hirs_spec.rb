@@ -13,12 +13,13 @@ describe 'hirs_provisioner class' do
   end
 
   # configure site.yaml and hiera
-  def config_site_and_hiera(_boltserver)
-    on _boltserver,
-'runuser simp_bolt -l -c "printf \"mod \'puppetlabs-stdlib\', \'5.2.0\'\nmod \'simp-simplib\', \'3.13.0\'\nmod \'simp/hirs_provisioner\', git: \'https://github.com/simp/pupmod-simp-hirs_provisioner.git\', ref: \'master\'\" > /var/local/simp_bolt/.puppetlabs/bolt/Puppetfile"'
-    on _boltserver, 'runuser simp_bolt -l -c "bolt puppetfile install"'
-    on _boltserver, 'runuser simp_bolt -l -c "printf -- \"---\nhirs_provisioner::config::aca_fqdn: aca\" > /var/local/simp_bolt/.puppetlabs/bolt/data/common.yaml"'
-    on _boltserver, 'runuser simp_bolt -l -c "printf \"include hirs_provisioner\" > /var/local/simp_bolt/.puppetlabs/bolt/site.pp"'
+  def config_site_and_hiera(boltserver)
+    # rubocop:disable Layout/LineLength
+    on boltserver, 'runuser simp_bolt -l -c "printf \"mod \'puppetlabs-stdlib\', \'5.2.0\'\nmod \'simp-simplib\', \'3.13.0\'\nmod \'simp/hirs_provisioner\', git: \'https://github.com/simp/pupmod-simp-hirs_provisioner.git\', ref: \'master\'\" > /var/local/simp_bolt/.puppetlabs/bolt/Puppetfile"'
+    # rubocop:enable Layout/LineLength
+    on boltserver, 'runuser simp_bolt -l -c "bolt puppetfile install"'
+    on boltserver, 'runuser simp_bolt -l -c "printf -- \"---\nhirs_provisioner::config::aca_fqdn: aca\" > /var/local/simp_bolt/.puppetlabs/bolt/data/common.yaml"'
+    on boltserver, 'runuser simp_bolt -l -c "printf \"include hirs_provisioner\" > /var/local/simp_bolt/.puppetlabs/bolt/site.pp"'
   end
 
   context 'set up aca' do
@@ -30,10 +31,10 @@ describe 'hirs_provisioner class' do
 
   context 'on specified hirs systems' do
     it 'installs hirs_provisioner' do
-      _boltserver = hosts_with_role(hosts, 'boltserver').first
-      config_site_and_hiera(_boltserver)
+      boltserver = hosts_with_role(hosts, 'boltserver').first
+      config_site_and_hiera(boltserver)
       hosts_with_role(hosts, 'hirs').each do |hirs_host|
-        on _boltserver, "runuser simp_bolt -l -c \"bolt apply /var/local/simp_bolt/.puppetlabs/bolt/site.pp --nodes '#{hirs_host}' --no-host-key-check\""
+        on boltserver, "runuser simp_bolt -l -c \"bolt apply /var/local/simp_bolt/.puppetlabs/bolt/site.pp --nodes '#{hirs_host}' --no-host-key-check\""
       end
     end
   end

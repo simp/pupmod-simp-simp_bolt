@@ -38,24 +38,24 @@ module Acceptance::Helpers::RepoHelper
     end
 
     repo = <<~EOM
-[#{type}]
-name=#{type}
-baseurl=https://download.simp-project.com/simp/yum/#{reponame}/#{version}/el/$releasever/x86_64/#{type}
-gpgcheck=1
-enabled=1
-gpgkey=https://raw.githubusercontent.com/NationalSecurityAgency/SIMP/master/GPGKEYS/RPM-GPG-KEY-SIMP
-     https://download.simp-project.com/simp/GPGKEYS/RPM-GPG-KEY-SIMP-6
-     https://download.simp-project.com/simp/GPGKEYS/RPM-GPG-KEY-SIMP
-     https://download.simp-project.com/simp/GPGKEYS/RPM-GPG-KEY-SIMP-UNSTABLE
-     https://raw.githubusercontent.com/NationalSecurityAgency/SIMP/master/GPGKEYS/RPM-GPG-KEY-SIMP
-     https://download.simp-project.com/simp/GPGKEYS/RPM-GPG-KEY-SIMP-6
-     https://yum.puppet.com/RPM-GPG-KEY-puppetlabs
-     https://yum.puppet.com/RPM-GPG-KEY-puppet
-     https://apt.postgresql.org/pub/repos/yum/RPM-GPG-KEY-PGDG-96
-     https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-$releasever
-sslverify=1
-sslcacert=/etc/pki/tls/certs/ca-bundle.crt
-metadata_expire=300
+      [#{type}]
+      name=#{type}
+      baseurl=https://download.simp-project.com/simp/yum/#{reponame}/#{version}/el/$releasever/x86_64/#{type}
+      gpgcheck=1
+      enabled=1
+      gpgkey=https://raw.githubusercontent.com/NationalSecurityAgency/SIMP/master/GPGKEYS/RPM-GPG-KEY-SIMP
+           https://download.simp-project.com/simp/GPGKEYS/RPM-GPG-KEY-SIMP-6
+           https://download.simp-project.com/simp/GPGKEYS/RPM-GPG-KEY-SIMP
+           https://download.simp-project.com/simp/GPGKEYS/RPM-GPG-KEY-SIMP-UNSTABLE
+           https://raw.githubusercontent.com/NationalSecurityAgency/SIMP/master/GPGKEYS/RPM-GPG-KEY-SIMP
+           https://download.simp-project.com/simp/GPGKEYS/RPM-GPG-KEY-SIMP-6
+           https://yum.puppet.com/RPM-GPG-KEY-puppetlabs
+           https://yum.puppet.com/RPM-GPG-KEY-puppet
+           https://apt.postgresql.org/pub/repos/yum/RPM-GPG-KEY-PGDG-96
+           https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-$releasever
+      sslverify=1
+      sslcacert=/etc/pki/tls/certs/ca-bundle.crt
+      metadata_expire=300
         EOM
     puts('=' * 72)
     puts("Using repo #{type} from download.simp-project.com directory: #{reponame} version: #{version}")

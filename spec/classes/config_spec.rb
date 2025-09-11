@@ -49,8 +49,8 @@ describe 'simp_bolt::controller::config' do
           let(:params) do
             {
               local_user: 'user',
-           local_group: 'user',
-           local_home: '/home/user'
+              local_group: 'user',
+              local_home: '/home/user',
             }
           end
 
@@ -69,12 +69,12 @@ describe 'simp_bolt::controller::config' do
 
         context 'with a config hash' do
           let(:header) do
-            <<-EOM
-# This file managed by puppet.
-# Any changes that you make will be reverted on the next puppet run.
-#
-# Bolt configuration file
-# https://puppet.com/docs/bolt/1.x/bolt_configuration_options.html
+            <<~EOM
+              # This file managed by puppet.
+              # Any changes that you make will be reverted on the next puppet run.
+              #
+              # Bolt configuration file
+              # https://puppet.com/docs/bolt/1.x/bolt_configuration_options.html
             EOM
           end
 
@@ -83,18 +83,18 @@ describe 'simp_bolt::controller::config' do
               config_hash: {
                 'param1' => 'string',
                 'param2' => true,
-                'param3' => [ 'array thing' ],
-                'param4' => { 'hashy' => 'mchashface' }
+                'param3' => ['array thing'],
+                'param4' => { 'hashy' => 'mchashface' },
               },
-           default_transport: 'local'
+              default_transport: 'local',
             }
           end
 
           it_behaves_like 'a structured module'
           it {
             is_expected.to create_file('/var/local/simp_bolt/puppetlabs/bolt/bolt.yaml').with_content(
-            header + params[:config_hash].to_yaml + "\n",
-          )
+              header + params[:config_hash].to_yaml + "\n",
+            )
           }
         end
       end

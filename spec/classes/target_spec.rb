@@ -26,7 +26,7 @@ describe 'simp_bolt::target' do
           let(:params) do
             {
               user_name: 'root',
-           user_home: '/var/local/${user_name}',
+              user_home: '/var/local/${user_name}',
             }
           end
 
@@ -39,8 +39,8 @@ describe 'simp_bolt::target' do
           let(:params) do
             {
               create_user: true,
-           user_name: 'simp_bolt',
-           user_home: '/var/local/${user_name}',
+              user_name: 'simp_bolt',
+              user_home: '/var/local/${user_name}',
             }
           end
 
@@ -53,9 +53,9 @@ describe 'simp_bolt::target' do
           let(:params) do
             {
               create_user: true,
-           user_name: 'simp_bolt',
-           user_home: '/var/local/${user_name}',
-           user_password: 'password_hash',
+              user_name: 'simp_bolt',
+              user_home: '/var/local/${user_name}',
+              user_password: 'password_hash',
             }
           end
 
@@ -64,20 +64,20 @@ describe 'simp_bolt::target' do
 
         context 'with a ssh authorized keys specified' do
           let(:facts) do
-            os_facts.merge({
-                             'simplib__sshd_config' => {
-                               'AuthorizedKeysFile' => '.ssh/authorized_keys'
-                             }
-                           })
+            os_facts.merge(
+              'simplib__sshd_config' => {
+                'AuthorizedKeysFile' => '.ssh/authorized_keys',
+              },
+            )
           end
 
           let(:params) do
             {
               create_user: true,
-           user_name: 'simp_bolt',
-           user_home: '/var/local/${user_name}',
-           user_sudo_user: 'root',
-           user_ssh_authorized_keys: ['ssh', 'authorized', 'keys']
+              user_name: 'simp_bolt',
+              user_home: '/var/local/${user_name}',
+              user_sudo_user: 'root',
+              user_ssh_authorized_keys: ['ssh', 'authorized', 'keys'],
             }
           end
 
